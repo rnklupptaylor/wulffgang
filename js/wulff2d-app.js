@@ -183,6 +183,7 @@ export class Wulff2DApp {
   css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
   draw() {
+    if (this.gc.clientWidth === 0 && this.sc.clientWidth === 0) return;
     this._drawGamma();
     this._drawShape();
   }

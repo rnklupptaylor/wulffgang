@@ -21,8 +21,18 @@ for (const btn of document.querySelectorAll('.tab')) {
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === btn.dataset.tab));
     if (btn.dataset.tab === 'tab-quiz' && !appQ.quiz) { appQ.startQuiz(); }
+    else if (btn.dataset.tab === 'tab-quiz') { appQ.draw(); }
+    else if (btn.dataset.tab === 'tab-2d') { app2d.draw(); }
+    else if (btn.dataset.tab === 'tab-hex') { appHex.draw(); }
   });
 }
+
+window.addEventListener('resize', () => {
+  app2d.draw();
+  appHex.draw();
+  if ($('tab-quiz').classList.contains('active')) appQ.draw();
+  app3d.render();
+});
 
 /* ---------- 2D app ---------- */
 const app2d = new Wulff2DApp($('canvas-gamma'), $('canvas-shape'), sync2d);
