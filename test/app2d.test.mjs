@@ -54,4 +54,23 @@ if (!app4.shape.famStats.gp2 || !app4.shape.famStats.gp2.present) {
 }
 console.log('ok hex {10-12} facets present when activated at 1.05');
 
+// Inspection point: arrow-key stepping along the gamma curve
+globalThis.document = { activeElement: null };
+const app5 = new Wulff2DApp(stub(), stub(), null, FAMILIES_2D);
+app5.gc.clientWidth = 100;
+app5.draw = () => {};
+app5.inspect = { th: 0.5 };
+const ev = key => ({ key, shiftKey: false, preventDefault() {} });
+app5._key(ev('ArrowRight'));
+approx(app5.inspect.th, 0.5 + Math.PI / 180, 1e-12, 'arrow-right steps +1 deg');
+app5._key(ev('ArrowLeft'));
+approx(app5.inspect.th, 0.5, 1e-12, 'arrow-left steps -1 deg');
+app5.inspect.th = 0.005;
+app5._key(ev('ArrowLeft'));
+approx(app5.inspect.th, 0.005 - Math.PI / 180 + 2 * Math.PI, 1e-9, 'wrap-around below zero');
+app5.inspect = null;
+app5._key(ev('ArrowRight'));
+if (app5.inspect !== null) { console.error('FAIL: keys must do nothing without inspection'); process.exit(1); }
+console.log('ok arrow keys ignored without inspection point');
+
 console.log('APP2D TESTS PASSED');

@@ -44,7 +44,8 @@ and vice versa**, in both directions:
 * **Construction inspector:** clicking the red γ(θ) curve highlights a single construction step —
   the radius vector and the perpendicular plane at that orientation (with right-angle marker and
   the γ value); clicking the marked point again removes it, clicking elsewhere on the curve moves
-  the inspection there.
+  the inspection there, and the ←/→ arrow keys step it along the curve in 1° increments
+  (Shift + arrow: 10°).
 * **Presets:** nearest-neighbour broken-bond values for the 2D square lattice
   (γ{11}/γ{10} = √2) and fcc (γ{100}/γ{111} = 2/√3 ≈ 1.155, γ{110}/γ{111} = 5/√24 ≈ 1.021 —
   which gives the 26-facet shape with {111}, {100} *and* {110}), plus rounded literature

@@ -32,6 +32,9 @@ export class Wulff2DApp {
       cv.addEventListener('pointercancel', () => this._up());
       cv.addEventListener('pointerleave', () => { if (!this.drag) { this.hover = null; this.draw(); } });
     }
+    if (gammaCanvas !== shapeCanvas && typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('keydown', e => this._key(e));
+    }
     this.shape = wulffPolygon2D(this.gammas, fams);
   }
 
@@ -126,6 +129,17 @@ export class Wulff2DApp {
   }
 
   _up() { this.drag = null; }
+
+  _key(e) {
+    if (!this.inspect || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    if (this.gc.clientWidth === 0 && this.sc.clientWidth === 0) return;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) return;
+    const step = (e.shiftKey ? 10 : 1) * Math.PI / 180;
+    this.inspect.th = (this.inspect.th + (e.key === 'ArrowRight' ? step : -step) + TAU) % TAU;
+    this.draw();
+    e.preventDefault();
+  }
 
   _inspectClick(p) {
     const t = this.gT;
