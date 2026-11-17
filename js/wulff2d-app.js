@@ -27,12 +27,12 @@ export class Wulff2DApp {
       cv.addEventListener('pointercancel', () => this._up());
       cv.addEventListener('pointerleave', () => { if (!this.drag) { this.hover = null; this.draw(); } });
     }
-    this.shape = wulffPolygon2D(this.gammas);
+    this.shape = wulffPolygon2D(this.gammas, fams);
   }
 
   setGammas(g) {
     this.gammas = { ...this.gammas, ...g };
-    this.shape = wulffPolygon2D(this.gammas);
+    this.shape = wulffPolygon2D(this.gammas, this.fams);
     this.draw();
     if (this.onChange) this.onChange(this.gammas);
   }
@@ -121,7 +121,7 @@ export class Wulff2DApp {
       const ratio = value / this.gammas[refKey];
       this.gammas[fam.key] = this.gammas[refKey] * Math.max(lo, Math.min(hi, ratio));
     }
-    this.shape = wulffPolygon2D(this.gammas);
+    this.shape = wulffPolygon2D(this.gammas, this.fams);
     this.draw();
     this.onChange(this.gammas);
   }
