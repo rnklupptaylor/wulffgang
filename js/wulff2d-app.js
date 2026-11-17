@@ -20,6 +20,7 @@ export class Wulff2DApp {
       cv.addEventListener('pointerdown', e => this._down(e, allowed));
       cv.addEventListener('pointermove', e => this._move(e, allowed));
       cv.addEventListener('pointerup', () => this._up());
+      cv.addEventListener('pointercancel', () => this._up());
       cv.addEventListener('pointerleave', () => { if (!this.drag) { this.hover = null; this.draw(); } });
     }
     this.shape = wulffPolygon2D(this.gammas);
@@ -27,7 +28,6 @@ export class Wulff2DApp {
 
   setGammas(g) {
     this.gammas = { ...this.gammas, ...g };
-    this.gammas.g10 = 1.0;
     this.shape = wulffPolygon2D(this.gammas);
     this.draw();
     if (this.onChange) this.onChange(this.gammas);
@@ -38,7 +38,7 @@ export class Wulff2DApp {
   startQuiz() {
     const r = (a, b) => Math.round((a + Math.random() * (b - a)) * 20) / 20;
     this.quiz = { g21: r(1.0, 1.45), g11: r(1.0, 1.45), revealed: false };
-    this.setGammas({ g21: 1.28, g11: 1.414 });
+    this.setGammas({ g10: 1, g21: 1.28, g11: 1.414 });
     this.draw();
   }
 
@@ -47,15 +47,17 @@ export class Wulff2DApp {
   matchScore() {
     if (!this.quiz) return null;
     const t = wulffPolygon2D({ g10: 1, g21: this.quiz.g21, g11: this.quiz.g11 });
-    let diff = 0;
+    let diff = 0, ref = 0;
     const N = 240;
     for (let i = 0; i < N; i++) {
       const th = i / N * TAU;
-      diff += Math.abs(support2D(this.shape.verts, th) - support2D(t.verts, th));
+      const a = support2D(this.shape.verts, th), b = support2D(t.verts, th);
+      diff += Math.abs(a - b);
+      ref += b;
     }
     diff /= N;
-    const rel = diff / 1.2;
-    return Math.max(0, Math.min(1, 1 - rel / 0.12));
+    ref /= N;
+    return Math.max(0, Math.min(1, 1 - (diff / ref) / 0.12));
   }
 
   /* ---------- interaction ---------- */
@@ -73,7 +75,7 @@ export class Wulff2DApp {
     if (allowed === 'handle' || allowed === 'both') hit = this._hitHandle(p);
     if (hit) type = 'handle';
     if (!hit && (allowed === 'facet' || allowed === 'both')) { hit = this._hitFacet(p); type = 'facet'; }
-    if (hit) { this.drag = { type, fam: hit }; cv.setPointerCapture(e.pointerId); }
+    if (hit) { this.drag = { type, fam: hit.fam, n: hit.n }; cv.setPointerCapture(e.pointerId); }
   }
 
   _move(e, allowed) {
@@ -83,33 +85,26 @@ export class Wulff2DApp {
       let h = null;
       if (allowed === 'handle' || allowed === 'both') h = this._hitHandle(p);
       if (!h && (allowed === 'facet' || allowed === 'both')) h = this._hitFacet(p);
-      const changed = (h ? h.key : null) !== (this.hover ? this.hover.key : null);
+      const changed = (h ? h.fam.key : null) !== (this.hover ? this.hover.fam.key : null);
       this.hover = h;
       cv.style.cursor = h ? 'grab' : 'default';
       if (changed) this.draw();
       return;
     }
     cv.style.cursor = 'grabbing';
-    const fam = this.drag.fam;
-    if (this.drag.type === 'handle') {
-      const u = [Math.cos(fam.handleAngle), Math.sin(fam.handleAngle)];
-      this._applyGamma(fam, p[0] * u[0] + p[1] * u[1]);
-    } else {
-      const fc = this._facetOf(fam);
-      if (fc) this._applyGamma(fam, p[0] * fc.n[0] + p[1] * fc.n[1]);
-    }
+    const t = this.drag.type === 'handle' ? this.gT : this.sT;
+    const mx = (p[0] - t.cx) / t.s, my = (t.cy - p[1]) / t.s;
+    this._applyGamma(this.drag.fam, mx * this.drag.n[0] + my * this.drag.n[1]);
   }
 
   _up() { this.drag = null; }
 
   _applyGamma(fam, value) {
-    const v = Math.max(0.80, Math.min(1.70, value));
     if (fam.key === 'g10') {
-      const s = Math.max(0.80 / 1.70, v);
-      this.gammas.g21 = Math.min(1.70, Math.max(0.80, this.gammas.g21 / s));
-      this.gammas.g11 = Math.min(1.70, Math.max(0.80, this.gammas.g11 / s));
+      this.gammas.g10 = Math.max(0.80, Math.min(1.70, value));
     } else {
-      this.gammas[fam.key] = v;
+      const ratio = value / this.gammas.g10;
+      this.gammas[fam.key] = this.gammas.g10 * Math.max(0.80, Math.min(1.70, ratio));
     }
     this.shape = wulffPolygon2D(this.gammas);
     this.draw();
@@ -121,18 +116,11 @@ export class Wulff2DApp {
       const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
       const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
       const [sx, sy] = this.g2s(this.gc, hx, hy);
-      if (Math.hypot(p[0] - sx, p[1] - sy) < 16) return f;
+      if (Math.hypot(p[0] - sx, p[1] - sy) < 16) {
+        return { fam: f, n: [Math.cos(f.handleAngle), Math.sin(f.handleAngle)] };
+      }
     }
     return null;
-  }
-
-  _facetOf(fam) {
-    let best = null;
-    for (const fc of this.shape.facets) {
-      if (fc.fam.key !== fam.key || fc.len < 1e-7) continue;
-      if (!best || fc.len > best.len) best = fc;
-    }
-    return best;
   }
 
   _hitFacet(p) {
@@ -141,7 +129,7 @@ export class Wulff2DApp {
       if (fc.len < 1e-7) continue;
       const a = this.g2s(cv, fc.a[0], fc.a[1]);
       const b = this.g2s(cv, fc.b[0], fc.b[1]);
-      if (this._distToSeg(p, a, b) < 12) return fc.fam;
+      if (this._distToSeg(p, a, b) < 12) return { fam: fc.fam, n: fc.n };
     }
     return null;
   }
@@ -173,10 +161,6 @@ export class Wulff2DApp {
   g2s(cv, x, y) {
     const t = cv === this.gc ? this.gT : this.sT;
     return [t.cx + t.s * x, t.cy - t.s * y];
-  }
-  s2g(cv, sx, sy) {
-    const t = cv === this.gc ? this.gT : this.sT;
-    return [(sx - t.cx) / t.s, (t.cy - sy) / t.s];
   }
 
   css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
@@ -298,7 +282,7 @@ export class Wulff2DApp {
       ctx.setLineDash([]);
 
       ctx.beginPath();
-      ctx.arc(X, Y, this.hover && this.hover.key === f.key ? 9 : 7, 0, TAU);
+      ctx.arc(X, Y, this.hover && this.hover.fam.key === f.key ? 9 : 7, 0, TAU);
       ctx.fillStyle = present ? f.color : this.css('--card');
       ctx.fill();
       ctx.lineWidth = 2;
@@ -375,7 +359,7 @@ export class Wulff2DApp {
 
     for (const fc of this.shape.facets) {
       if (fc.len < 1e-7) continue;
-      const hot = this.hover && this.hover.key === fc.fam.key;
+      const hot = this.hover && this.hover.fam.key === fc.fam.key;
       const drag = this.drag && this.drag.type === 'facet' && this.drag.fam.key === fc.fam.key;
       ctx.strokeStyle = fc.fam.color;
       ctx.lineWidth = hot || drag ? 10 : 6;
@@ -398,7 +382,7 @@ export class Wulff2DApp {
         ctx.fillText(fc.fam.label, lx, ly);
         ctx.font = '10px sans-serif';
         ctx.fillStyle = muted;
-        ctx.fillText(`h = ${fc.h.toFixed(2)}`, lx, ly + 12);
+        ctx.fillText(`γ = ${(fc.h / this.gammas.g10).toFixed(2)}`, lx, ly + 12);
         ctx.textAlign = 'left';
       }
     }

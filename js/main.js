@@ -28,10 +28,11 @@ for (const btn of document.querySelectorAll('.tab')) {
 const app2d = new Wulff2DApp($('canvas-gamma'), $('canvas-shape'), sync2d);
 
 function sync2d() {
-  $('v-g21').textContent = app2d.gammas.g21.toFixed(3);
-  $('v-g11').textContent = app2d.gammas.g11.toFixed(3);
-  $('s-g21').value = app2d.gammas.g21;
-  $('s-g11').value = app2d.gammas.g11;
+  const cl = x => Math.max(0.80, Math.min(1.70, x));
+  $('v-g21').textContent = (app2d.gammas.g21 / app2d.gammas.g10).toFixed(3);
+  $('v-g11').textContent = (app2d.gammas.g11 / app2d.gammas.g10).toFixed(3);
+  $('s-g21').value = cl(app2d.gammas.g21 / app2d.gammas.g10);
+  $('s-g11').value = cl(app2d.gammas.g11 / app2d.gammas.g10);
   updateTable2d();
 }
 
@@ -42,7 +43,7 @@ function updateTable2d() {
     const st = app2d.shape.famStats[f.key];
     const tr = document.createElement('tr');
     tr.innerHTML = `<td><span class="swatch" style="background:${f.color}"></span>${f.label}</td>
-      <td>${app2d.gammas[f.key].toFixed(3)}</td>
+      <td>${(app2d.gammas[f.key] / app2d.gammas.g10).toFixed(3)}</td>
       <td class="${st.present ? 'yes' : 'no'}">${st.present ? st.count + '×' : 'missing'}</td>
       <td>${st.present ? (st.share * 100).toFixed(1) + ' %' : '—'}</td>`;
     tb.appendChild(tr);
@@ -54,17 +55,18 @@ function updateTable2d() {
 }
 
 for (const [id, key] of [['s-g21', 'g21'], ['s-g11', 'g11']]) {
-  $(id).addEventListener('input', e => app2d.setGammas({ [key]: parseFloat(e.target.value) }));
+  $(id).addEventListener('input', e =>
+    app2d.setGammas({ [key]: parseFloat(e.target.value) * app2d.gammas.g10 }));
 }
 $('t-construction').addEventListener('change', e => app2d.setOptions({ construction: e.target.checked }));
 $('t-missing').addEventListener('change', e => app2d.setOptions({ missing: e.target.checked }));
 $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.target.checked }));
 
 const PRESETS_2D = [
-  { name: 'Square', g: { g21: 1.70, g11: 1.70 } },
-  { name: 'Broken-bond square lattice (√2)', g: { g21: 1.55, g11: 1.414 } },
-  { name: 'Truncated square', g: { g21: 1.70, g11: 1.25 } },
-  { name: 'Dodecagon (all facets)', g: { g21: 1.15, g11: 1.30 } },
+  { name: 'Square', g: { g10: 1, g21: 1.70, g11: 1.70 } },
+  { name: 'Broken-bond square lattice (√2)', g: { g10: 1, g21: 1.55, g11: 1.414 } },
+  { name: 'Truncated square', g: { g10: 1, g21: 1.70, g11: 1.25 } },
+  { name: 'Dodecagon (all facets)', g: { g10: 1, g21: 1.15, g11: 1.30 } },
   { name: 'Randomize', g: null },
 ];
 for (const p of PRESETS_2D) {
@@ -73,6 +75,7 @@ for (const p of PRESETS_2D) {
   b.addEventListener('click', () => {
     if (p.g) app2d.setGammas(p.g);
     else app2d.setGammas({
+      g10: 1,
       g21: Math.round((1.0 + Math.random() * 0.6) * 20) / 20,
       g11: Math.round((1.0 + Math.random() * 0.6) * 20) / 20,
     });
@@ -167,10 +170,11 @@ for (const p of PRESETS_3D) {
 const appQ = new Wulff2DApp($('canvas-quiz'), $('canvas-quiz'), syncQuiz);
 
 function updateQuizUI() {
-  $('sq-g21').value = appQ.gammas.g21;
-  $('sq-g11').value = appQ.gammas.g11;
-  $('vq-g21').textContent = appQ.gammas.g21.toFixed(3);
-  $('vq-g11').textContent = appQ.gammas.g11.toFixed(3);
+  const cl = x => Math.max(0.80, Math.min(1.70, x));
+  $('sq-g21').value = cl(appQ.gammas.g21 / appQ.gammas.g10);
+  $('sq-g11').value = cl(appQ.gammas.g11 / appQ.gammas.g10);
+  $('vq-g21').textContent = (appQ.gammas.g21 / appQ.gammas.g10).toFixed(3);
+  $('vq-g11').textContent = (appQ.gammas.g11 / appQ.gammas.g10).toFixed(3);
   const m = appQ.matchScore();
   if (m !== null) $('quiz-matchbar').style.width = (m * 100).toFixed(0) + '%';
   if (!appQ.quiz) return;
@@ -187,8 +191,8 @@ function updateQuizUI() {
 
 function syncQuiz() { updateQuizUI(); }
 
-$('sq-g21').addEventListener('input', e => { appQ.setGammas({ g21: parseFloat(e.target.value) }); });
-$('sq-g11').addEventListener('input', e => { appQ.setGammas({ g11: parseFloat(e.target.value) }); });
+$('sq-g21').addEventListener('input', e => { appQ.setGammas({ g21: parseFloat(e.target.value) * appQ.gammas.g10 }); });
+$('sq-g11').addEventListener('input', e => { appQ.setGammas({ g11: parseFloat(e.target.value) * appQ.gammas.g10 }); });
 $('quiz-new').addEventListener('click', () => { appQ.startQuiz(); $('quiz-answer').textContent = ''; });
 $('quiz-reveal').addEventListener('click', () => {
   if (!appQ.quiz) appQ.startQuiz();
