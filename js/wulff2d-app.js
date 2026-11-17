@@ -15,10 +15,11 @@ export class Wulff2DApp {
     this.axisLabels = axisLabels;
     this.gammas = Object.fromEntries(this.allFams.map(f => [f.key, f.gamma]));
     this.opts = { construction: true, missing: true, labels: true,
-                  gammaFacets: false, constructionDensity: 180 };
+                  gammaFacets: false, region: false, constructionDensity: 180 };
     this.quiz = null;
     this.drag = null;
     this.hover = null;
+    this.inspect = null;
     this.editFilter = null;
 
     const targets = gammaCanvas === shapeCanvas
@@ -100,7 +101,8 @@ export class Wulff2DApp {
     if (allowed === 'handle' || allowed === 'both') hit = this._hitHandle(p);
     if (hit) type = 'handle';
     if (!hit && (allowed === 'facet' || allowed === 'both')) { hit = this._hitFacet(p); type = 'facet'; }
-    if (hit) { this.drag = { type, fam: hit.fam, n: hit.n }; cv.setPointerCapture(e.pointerId); }
+    if (hit) { this.drag = { type, fam: hit.fam, n: hit.n }; cv.setPointerCapture(e.pointerId); return; }
+    if (cv === this.gc && this.gc !== this.sc) this._inspectClick(p);
   }
 
   _move(e, allowed) {
@@ -112,7 +114,8 @@ export class Wulff2DApp {
       if (!h && (allowed === 'facet' || allowed === 'both')) h = this._hitFacet(p);
       const changed = (h ? h.fam.key : null) !== (this.hover ? this.hover.fam.key : null);
       this.hover = h;
-      cv.style.cursor = h ? 'grab' : 'default';
+      cv.style.cursor = h ? 'grab'
+        : (cv === this.gc && this.gc !== this.sc && this._hitCurve(p) !== null ? 'pointer' : 'default');
       if (changed) this.draw();
       return;
     }
@@ -123,6 +126,30 @@ export class Wulff2DApp {
   }
 
   _up() { this.drag = null; }
+
+  _inspectClick(p) {
+    const t = this.gT;
+    if (!t) return;
+    if (this.inspect) {
+      const r = support2D(this.shape.verts, this.inspect.th);
+      const [sx, sy] = this.g2s(this.gc, r * Math.cos(this.inspect.th), r * Math.sin(this.inspect.th));
+      if (Math.hypot(p[0] - sx, p[1] - sy) < 14) { this.inspect = null; this.draw(); return; }
+    }
+    const th = this._hitCurve(p);
+    if (th === null) return;
+    this.inspect = { th };
+    this.draw();
+  }
+
+  _hitCurve(p) {
+    const t = this.gT;
+    if (!t) return null;
+    const mx = (p[0] - t.cx) / t.s, my = (t.cy - p[1]) / t.s;
+    const th = Math.atan2(my, mx);
+    const r = support2D(this.shape.verts, th);
+    const d = Math.hypot(mx - r * Math.cos(th), my - r * Math.sin(th)) * t.s;
+    return d <= 12 ? th : null;
+  }
 
   _applyGamma(fam, value) {
     const refKey = this.fams[0].key;
@@ -266,19 +293,21 @@ export class Wulff2DApp {
       ctx.globalAlpha = 1;
     }
 
-    ctx.beginPath();
-    this.shape.poly.forEach((v, i) => {
-      const X = cx + v[0] * s, Y = cy - v[1] * s;
-      i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
-    });
-    ctx.closePath();
-    ctx.fillStyle = this.css('--plot-blue');
-    ctx.globalAlpha = 0.13;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = this.css('--plot-blue');
-    ctx.lineWidth = 2.2;
-    ctx.stroke();
+    if (this.opts.region) {
+      ctx.beginPath();
+      this.shape.poly.forEach((v, i) => {
+        const X = cx + v[0] * s, Y = cy - v[1] * s;
+        i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = this.css('--plot-blue');
+      ctx.globalAlpha = 0.13;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = this.css('--plot-blue');
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+    }
     if (this.opts.gammaFacets) {
       for (const fc of this.shape.facets) {
         if (fc.len < 1e-7) continue;
@@ -303,6 +332,46 @@ export class Wulff2DApp {
       i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
     }
     ctx.stroke();
+
+    if (this.inspect) {
+      const th = this.inspect.th;
+      const r = support2D(this.shape.verts, th);
+      const ux = Math.cos(th), uy = Math.sin(th);
+      const px = r * ux, py = r * uy;
+      const X = cx + px * s, Y = cy - py * s;
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = this.css('--plot-red');
+      ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X, Y); ctx.stroke();
+      ctx.setLineDash([]);
+      const E = maxR * 1.3;
+      const tx = -Math.sin(th) * E, ty = Math.cos(th) * E;
+      ctx.strokeStyle = this.css('--plot-blue');
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(cx + (px + tx) * s, cy - (py + ty) * s);
+      ctx.lineTo(cx + (px - tx) * s, cy - (py - ty) * s);
+      ctx.stroke();
+      const m = 9 / s;
+      const ax = px - ux * m, ay = py - uy * m;
+      const bx = ax - Math.sin(th) * m, by = ay + Math.cos(th) * m;
+      const ccx = px - Math.sin(th) * m, ccy = py + Math.cos(th) * m;
+      ctx.strokeStyle = this.css('--plot-blue');
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(cx + ax * s, cy - ay * s);
+      ctx.lineTo(cx + bx * s, cy - by * s);
+      ctx.lineTo(cx + ccx * s, cy - ccy * s);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(X, Y, 5, 0, TAU);
+      ctx.fillStyle = this.css('--plot-red'); ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#fff'; ctx.stroke();
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillStyle = this.css('--text');
+      ctx.textAlign = 'center';
+      ctx.fillText(`γ(θ) = ${r.toFixed(2)}`, X + 30 * ux, Y - 30 * uy - 8);
+      ctx.textAlign = 'left';
+    }
 
     for (const f of this.fams) {
       const present = this.shape.famStats[f.key].present;

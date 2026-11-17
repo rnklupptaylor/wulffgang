@@ -81,6 +81,7 @@ $('t-construction').addEventListener('change', e => app2d.setOptions({ construct
 $('t-missing').addEventListener('change', e => app2d.setOptions({ missing: e.target.checked }));
 $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.target.checked }));
 $('t-gammafacets').addEventListener('change', e => app2d.setOptions({ gammaFacets: e.target.checked }));
+$('t-region').addEventListener('change', e => app2d.setOptions({ region: e.target.checked }));
 $('r-construction').addEventListener('input', e => {
   $('vr-construction').textContent = e.target.value;
   app2d.setOptions({ constructionDensity: parseInt(e.target.value) });
@@ -180,6 +181,7 @@ $('th-construction').addEventListener('change', e => appHex.setOptions({ constru
 $('th-missing').addEventListener('change', e => appHex.setOptions({ missing: e.target.checked }));
 $('th-labels').addEventListener('change', e => appHex.setOptions({ labels: e.target.checked }));
 $('th-gammafacets').addEventListener('change', e => appHex.setOptions({ gammaFacets: e.target.checked }));
+$('th-region').addEventListener('change', e => appHex.setOptions({ region: e.target.checked }));
 $('rh-construction').addEventListener('input', e => {
   $('vrh-construction').textContent = e.target.value;
   appHex.setOptions({ constructionDensity: parseInt(e.target.value) });

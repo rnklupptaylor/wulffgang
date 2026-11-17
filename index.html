@@ -42,7 +42,9 @@
       <div class="canvas-wrap"><canvas id="canvas-gamma"></canvas></div>
       <p class="caption"><strong>Red:</strong> γ(θ), the γ-plot (cusps at the facet orientations).
       <strong>Thin blue lines:</strong> planes perpendicular to the radius vector at distance h = γ.
-      <strong>Blue:</strong> their inner envelope — the equilibrium shape. Drag the coloured handles to change γ.</p>
+      <strong>Blue:</strong> their inner envelope — the equilibrium shape (toggleable). Drag the coloured
+      handles to change γ, or <strong>click the red curve</strong> to inspect one construction plane
+      (radius vector + perpendicular); click the marked point again to remove it.</p>
     </div>
 
     <div class="card canvas-card">
@@ -92,6 +94,7 @@
         <label><input type="checkbox" id="t-missing" checked> mark missing orientations</label>
         <label><input type="checkbox" id="t-labels" checked> facet labels</label>
         <label><input type="checkbox" id="t-gammafacets"> facet colours on γ-plot</label>
+        <label><input type="checkbox" id="t-region"> Wulff shape on γ-plot</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
@@ -296,7 +299,8 @@
     <div class="card canvas-card">
       <h2>γ-plot and Wulff shape (c-axis section)</h2>
       <div class="canvas-wrap"><canvas id="canvas-hexgamma"></canvas></div>
-      <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.</p>
+      <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.
+      Click the red curve to inspect one construction plane (radius vector + perpendicular).</p>
     </div>
 
     <div class="card canvas-card">
@@ -347,6 +351,7 @@
         <label><input type="checkbox" id="th-missing" checked> Missing orientations</label>
         <label><input type="checkbox" id="th-labels" checked> Labels</label>
         <label><input type="checkbox" id="th-gammafacets"> Facet colours on γ-plot</label>
+        <label><input type="checkbox" id="th-region"> Shape on γ-plot</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
@@ -498,7 +503,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.4</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.5</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>
