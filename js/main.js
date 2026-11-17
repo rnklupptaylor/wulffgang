@@ -1,4 +1,4 @@
-import { FAMILIES_2D } from './wulff2d-engine.js';
+import { FAMILIES_HEX } from './wulff2d-engine.js';
 import { FAMILIES_3D } from './wulff3d-engine.js';
 import { Wulff2DApp } from './wulff2d-app.js';
 import { Wulff3DApp } from './wulff3d-app.js';
@@ -33,25 +33,26 @@ function sync2d() {
   $('v-g11').textContent = (app2d.gammas.g11 / app2d.gammas.g10).toFixed(3);
   $('s-g21').value = cl(app2d.gammas.g21 / app2d.gammas.g10);
   $('s-g11').value = cl(app2d.gammas.g11 / app2d.gammas.g10);
-  updateTable2d();
+  updateTable2d(app2d, 'table-2d', 'missing-note-2d');
 }
 
-function updateTable2d() {
-  const tb = $('table-2d').querySelector('tbody');
+function updateTable2d(app, tableId, noteId) {
+  const ref = app.fams[0].key;
+  const tb = $(tableId).querySelector('tbody');
   tb.innerHTML = '';
-  for (const f of FAMILIES_2D) {
-    const st = app2d.shape.famStats[f.key];
+  for (const f of app.fams) {
+    const st = app.shape.famStats[f.key];
     const tr = document.createElement('tr');
     tr.innerHTML = `<td><span class="swatch" style="background:${f.color}"></span>${f.label}</td>
-      <td>${(app2d.gammas[f.key] / app2d.gammas.g10).toFixed(3)}</td>
+      <td>${(app.gammas[f.key] / app.gammas[ref]).toFixed(3)}</td>
       <td class="${st.present ? 'yes' : 'no'}">${st.present ? st.count + '×' : 'missing'}</td>
       <td>${st.present ? (st.share * 100).toFixed(1) + ' %' : '—'}</td>`;
     tb.appendChild(tr);
   }
-  const missing = FAMILIES_2D.filter(f => !app2d.shape.famStats[f.key].present).map(f => f.label);
-  $('missing-note-2d').textContent = missing.length
+  const missing = app.fams.filter(f => !app.shape.famStats[f.key].present).map(f => f.label);
+  $(noteId).textContent = missing.length
     ? `Missing orientations: ${missing.join(', ')} — these planes lie outside the envelope; the orientations touch the shape only at corners.`
-    : 'All three facet families are present on the shape.';
+    : 'All facet families are present on the shape.';
 }
 
 for (const [id, key] of [['s-g21', 'g21'], ['s-g11', 'g11']]) {
@@ -75,7 +76,7 @@ function makeEditButtons(containerId, app) {
     return b;
   };
   mk('All', null).classList.add('active');
-  for (const f of FAMILIES_2D) mk('Edit ' + f.label, f.key);
+  for (const f of app.fams) mk('Edit ' + f.label, f.key);
 }
 makeEditButtons('edit-2d', app2d);
 
@@ -98,6 +99,52 @@ for (const p of PRESETS_2D) {
     });
   });
   $('presets-2d').appendChild(b);
+}
+
+/* ---------- hexagonal (anisotropic) 2D app ---------- */
+const appHex = new Wulff2DApp($('canvas-hexgamma'), $('canvas-hexshape'), syncHex,
+  FAMILIES_HEX, ['[1-100]', '[0001]']);
+
+function syncHex() {
+  const cl = x => Math.max(0.50, Math.min(3.20, x));
+  $('vh-gb').textContent = (appHex.gammas.gb / appHex.gammas.gm).toFixed(3);
+  $('vh-gp').textContent = (appHex.gammas.gp / appHex.gammas.gm).toFixed(3);
+  $('sh-gb').value = cl(appHex.gammas.gb / appHex.gammas.gm);
+  $('sh-gp').value = cl(appHex.gammas.gp / appHex.gammas.gm);
+  const xs = appHex.shape.poly.map(v => v[0]), ys = appHex.shape.poly.map(v => v[1]);
+  const L = Math.max(...ys) - Math.min(...ys), D = Math.max(...xs) - Math.min(...xs);
+  $('aspect-hex').textContent = (L / D).toFixed(2);
+  updateTable2d(appHex, 'table-hex', 'missing-note-hex');
+}
+
+for (const [id, key] of [['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
+  $(id).addEventListener('input', e =>
+    appHex.setGammas({ [key]: parseFloat(e.target.value) * appHex.gammas.gm }));
+}
+$('th-construction').addEventListener('change', e => appHex.setOptions({ construction: e.target.checked }));
+$('th-missing').addEventListener('change', e => appHex.setOptions({ missing: e.target.checked }));
+$('th-labels').addEventListener('change', e => appHex.setOptions({ labels: e.target.checked }));
+makeEditButtons('edit-hex', appHex);
+
+const PRESETS_HEX = [
+  { name: 'ZnO-like nanorod', g: { gm: 1, gb: 1.80, gp: 1.25 } },
+  { name: 'Needle (flat ends)', g: { gm: 1, gb: 3.20, gp: 3.20 } },
+  { name: 'Platelet (ice-like)', g: { gm: 1, gb: 0.60, gp: 1.10 } },
+  { name: 'Octagonal section (all facets)', g: { gm: 1, gb: 1.40, gp: 1.15 } },
+  { name: 'Randomize', g: null },
+];
+for (const p of PRESETS_HEX) {
+  const b = document.createElement('button');
+  b.textContent = p.name;
+  b.addEventListener('click', () => {
+    if (p.g) appHex.setGammas(p.g);
+    else appHex.setGammas({
+      gm: 1,
+      gb: Math.round((0.6 + Math.random() * 2.4) * 20) / 20,
+      gp: Math.round((0.8 + Math.random() * 1.6) * 20) / 20,
+    });
+  });
+  $('presets-hex').appendChild(b);
 }
 
 /* ---------- 3D app ---------- */
@@ -221,5 +268,7 @@ $('quiz-reveal').addEventListener('click', () => {
 
 /* ---------- boot ---------- */
 sync2d();
+syncHex();
 sync3d();
 app2d.draw();
+appHex.draw();

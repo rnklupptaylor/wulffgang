@@ -14,8 +14,9 @@ and vice versa**, in both directions:
 | --- | --- | --- |
 | 1 · γ-plot → shape (2D) | γ → shape **and** shape → γ | Classic Herring construction: polar γ-plot with cusps, perpendicular construction planes, inner envelope. Drag the γ-handles *or* drag the facets of the crystal itself; plot and shape always stay consistent. |
 | 2 · Crystal shape (3D) | γ ↔ shape | Exact Wulff polyhedron of a cubic crystal from γ{100}, γ{110}, γ{111} (+ optional {210}, {211}, {311}). Facet area fractions, present/missing analysis with numeric critical ratios, metal presets. |
-| 3 · Mystery crystal | shape → γ | Quiz: a crystal built from hidden energies must be recovered from its shape alone — the "TEM image" inverse problem. |
-| 4 · How it works | — | Theory (Gibbs 1878, Wulff 1901, Herring's recipe), cusps & missing orientations, equilibrium vs. kinetic Wulff, explicit simplifications, references. English + German. |
+| 3 · Anisotropic crystals | γ → shape (and back) | Wurtzite-type crystal (ZnO, GaN, ice …), 2D section containing the c-axis: γ{0001}/γ{10-10} sets the rod/platelet aspect ratio, γ{10-11}/γ{10-10} the pyramidal end bevels. Presets: ZnO-like nanorod, needle, ice-like platelet, octagonal section. |
+| 4 · Mystery crystal | shape → γ | Quiz: a crystal built from hidden energies must be recovered from its shape alone — the "TEM image" inverse problem. |
+| 5 · How it works | — | Theory (Gibbs 1878, Wulff 1901, Herring's recipe), cusps & missing orientations, anisotropic crystals & rods, equilibrium vs. kinetic Wulff, explicit simplifications, references. English + German. |
 
 ## Physics implemented (all exact, no approximations in the geometry)
 
@@ -31,6 +32,10 @@ and vice versa**, in both directions:
   face construction. Facet areas are integrated exactly. For each family the app reports the
   **critical γ ratio** at which its facets appear/disappear (computed from the polyhedron with
   that family removed).
+* **Anisotropic (hexagonal) tab:** the Wulff construction is symmetry-agnostic; the tab uses a
+  2D section containing the c-axis of a wurtzite crystal with families {0001} (basal, polar),
+  {10-10} (prism m-plane) and {10-11} (pyramidal, normal at 61.6° from the basal normal for
+  ZnO's c/a = 1.60). With only {10-10} and {0001} present, L/D = γ{0001}/γ{10-10} exactly.
 * **Presets:** nearest-neighbour broken-bond values for the 2D square lattice
   (γ{11}/γ{10} = √2) and fcc (γ{100}/γ{111} = 2/√3 ≈ 1.155, γ{110}/γ{111} = 5/√24 ≈ 1.021 —
   which gives the 26-facet shape with {111}, {100} *and* {110}), plus rounded literature
@@ -49,6 +54,7 @@ Pure static site — no build step, no dependencies, no external requests.
 
 ```
 node test/engine.test.mjs    # 2D engine checks (square, octagon, missing facets, support function)
+node test/hex.test.mjs       # hexagonal c-axis section checks (rod/platelet aspect ratios, critical ratios)
 node test/engine3d.test.mjs  # 3D engine checks (broken-bond fcc, cube, octahedron, timing)
 ```
 

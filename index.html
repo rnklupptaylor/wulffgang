@@ -24,8 +24,9 @@
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="tab-2d">1 · γ-plot → shape (2D)</button>
   <button class="tab" data-tab="tab-3d">2 · Crystal shape (3D)</button>
-  <button class="tab" data-tab="tab-quiz">3 · Mystery crystal</button>
-  <button class="tab" data-tab="tab-theory">4 · How it works</button>
+  <button class="tab" data-tab="tab-hex">3 · Anisotropic crystals</button>
+  <button class="tab" data-tab="tab-quiz">4 · Mystery crystal</button>
+  <button class="tab" data-tab="tab-theory">5 · How it works</button>
 </nav>
 
 <main>
@@ -188,7 +189,7 @@
 
 </section>
 
-<!-- ==================== TAB 3: QUIZ ==================== -->
+<!-- ==================== TAB 4: QUIZ ==================== -->
 <section id="tab-quiz" class="tab-panel">
 
   <div class="quiz-intro card">
@@ -234,7 +235,94 @@
 
 </section>
 
-<!-- ==================== TAB 4: THEORY ==================== -->
+<!-- ==================== TAB 3b: HEXAGONAL / ANISOTROPIC ==================== -->
+<section id="tab-hex" class="tab-panel">
+
+  <div class="quiz-intro card">
+    <h2>Anisotropic crystals: rods and platelets</h2>
+    <p>The Wulff construction is <em>not</em> restricted to cubic crystals — it works for any surface-energy
+    plot γ(n). This tab shows a 2D section <em>containing the c-axis</em> of a wurtzite-type crystal
+    (like ZnO, GaN or ice), where the energy difference between the nonpolar prism planes {10-10}
+    and the polar basal plane {0001} directly controls the <strong>aspect ratio</strong> of the crystal:
+    high γ{0001} → rod, low γ{0001} → platelet. Only ratios matter, so γ{10-10} is the reference.</p>
+  </div>
+
+  <div class="canvas-grid">
+    <div class="card">
+      <h2>γ-plot and Wulff shape (c-axis section)</h2>
+      <div class="canvas-wrap"><canvas id="canvas-hexgamma"></canvas></div>
+      <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.</p>
+    </div>
+    <div class="card">
+      <h2>Crystal section</h2>
+      <div class="canvas-wrap"><canvas id="canvas-hexshape"></canvas></div>
+      <p class="caption">Section through the c-axis (vertical). The {11-20} a-planes are
+      perpendicular to this section and never appear as facets here.</p>
+    </div>
+  </div>
+
+  <div class="controls-grid">
+    <div class="card">
+      <h3>Surface energies</h3>
+      <p class="note">Teaching values. In ZnO the polar Zn-terminated (0001) face has the highest
+      energy, the nonpolar m-plane {10-10} the lowest — hence nanorods.</p>
+      <div class="slider-row">
+        <label>γ{10-10} <small>(reference)</small></label>
+        <input type="range" min="1" max="1" step="0.001" value="1" disabled>
+        <output>1.000</output>
+      </div>
+      <div class="slider-row">
+        <label>γ{0001} / γ{10-10}</label>
+        <input type="range" id="sh-gb" min="0.50" max="3.20" step="0.005" value="1.80">
+        <output id="vh-gb">1.800</output>
+      </div>
+      <div class="slider-row">
+        <label>γ{10-11} / γ{10-10}</label>
+        <input type="range" id="sh-gp" min="0.50" max="3.20" step="0.005" value="1.25">
+        <output id="vh-gp">1.250</output>
+      </div>
+      <h3>Drag editing</h3>
+      <p class="note">Restrict dragging to one facet family.</p>
+      <div class="btn-row" id="edit-hex"></div>
+      <h3>Teaching presets</h3>
+      <div class="btn-row" id="presets-hex"></div>
+    </div>
+
+    <div class="card">
+      <h3>Readout</h3>
+      <table class="readout" id="table-hex">
+        <thead><tr><th>Plane</th><th>γ ratio</th><th>Facets</th><th>Perimeter</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="note" id="missing-note-hex"></p>
+      <p class="note">Aspect ratio L/D = <strong id="aspect-hex">—</strong>
+      (with only {10-10} and {0001} present: L/D = γ{0001}/γ{10-10} exactly).</p>
+      <div class="toggle-row">
+        <label><input type="checkbox" id="th-construction" checked> Wulff construction lines</label>
+        <label><input type="checkbox" id="th-missing" checked> Missing orientations</label>
+        <label><input type="checkbox" id="th-labels" checked> Labels</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card trythis">
+    <h3>Try this</h3>
+    <p><strong>1.</strong> Load “ZnO-like nanorod”. Measure L/D from the section and compare with
+    γ{0001}/γ{10-10} — an experimentalist could read the energy ratio from a TEM image this way.</p>
+    <p><strong>2.</strong> Lower γ{0001} below 1: the crystal becomes a platelet. Real ice crystals do
+    this — the basal face of ice grows slowly, which is why snowflakes are thin plates.</p>
+    <p><strong>3.</strong> Load “Needle (flat ends)”: the pyramidal planes are now a <em>missing
+    orientation</em> and the ends are flat {0001}. Lower γ{10-11} slightly and watch the pyramidal
+    facets nucleate at the corners.</p>
+    <p><strong>4.</strong> <em>Caution:</em> real ZnO nanorods are often far longer than their equilibrium
+    Wulff shape — they grow kinetically (e.g. screw-dislocation or VLS growth). Equilibrium shape
+    and growth shape are different concepts — see the kinetic Wulff discussion in
+    <a href="https://supers-app-turated.netlify.app/" target="_blank" rel="noopener">SupersAPPturated</a>.</p>
+  </div>
+
+</section>
+
+<!-- ==================== TAB 5: THEORY ==================== -->
 <section id="tab-theory" class="tab-panel">
 
   <div class="card theory">
@@ -308,6 +396,18 @@
     schnelles Wachstum folgt der kinetischen Wulff-Konstruktion (Geschwindigkeiten statt Energien) und liefert
     Nadeln und Dendriten.</p>
 
+    <h3>Anisotropic crystals: rods and platelets (tab 3)</h3>
+    <p>Nothing in the Wulff construction assumes cubic symmetry — it works for <em>any</em> γ(n̂).
+    For a wurtzite-type crystal (ZnO, GaN, ice …) viewed in a section containing the c-axis, the
+    equilibrium shape follows from just two energy ratios: γ{0001}/γ{10-10} sets the <strong>aspect
+    ratio</strong> (rod when the polar basal face is expensive, platelet when it is cheap — with only
+    these two families L/D = γ{0001}/γ{10-10} exactly), and γ{10-11}/γ{10-10} decides whether
+    pyramidal facets bevel the ends. Two honest cautions: the two polar basal faces
+    ((0001) and (0001̄)) actually have <em>different</em> energies that depend on the chemical
+    potential, and real nanorods are usually much longer than their equilibrium Wulff shape —
+    kinetic growth (VLS, screw dislocations) dominates. Equilibrium shape and growth shape are
+    different concepts.</p>
+
     <h3>References</h3>
     <ul class="refs">
       <li>J. W. Gibbs, <em>On the Equilibrium of Heterogeneous Substances</em> (1878).</li>
@@ -317,6 +417,8 @@
       and in <em>Structure and Properties of Solid Surfaces</em> (1953).</li>
       <li>L. Vitos, A. V. Ruban, H. L. Skriver, J. Kollár, "The surface energy of metals", Surf. Sci. <strong>411</strong>, 186 (1998).</li>
       <li>R. Tran, Z. Xu, B. Radhakrishnan et al., "Surface energies of elemental crystals", Sci. Data <strong>3</strong>, 160080 (2016).</li>
+      <li>H. Li, L. Geelhaar, H. Riechert, C. Draxl, "Computing Equilibrium Shapes of Wurtzite Crystals: The Example of GaN", Phys. Rev. Lett. <strong>115</strong>, 085503 (2015).</li>
+      <li>J. Zhang, K. Tse, B. Deng, H. Xu, J. Zhu, "New approaches for calculating absolute surface energies of wurtzite (0001)/(0001̄): A study of ZnO and GaN", J. Appl. Phys. <strong>119</strong>, 205302 (2016).</li>
     </ul>
   </div>
 
@@ -325,7 +427,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.1</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.2</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>

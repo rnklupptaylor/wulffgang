@@ -4,32 +4,49 @@ const TAU = Math.PI * 2;
 const DEG = Math.PI / 180;
 
 export const FAMILIES_2D = [
-  { key: 'g10', label: '{10}', color: '#e8890c', gamma: 1.0, handleAngle: 0 },
-  { key: 'g21', label: '{21}', color: '#0ca678', gamma: 1.28, handleAngle: Math.atan(0.5) },
-  { key: 'g11', label: '{11}', color: '#1971c2', gamma: 1.414, handleAngle: Math.PI / 4 },
+  { key: 'g10', label: '{10}', color: '#e8890c', gamma: 1.0, handleAngle: 0,
+    angles: [0, 90, 180, 270].map(a => a * DEG) },
+  { key: 'g21', label: '{21}', color: '#0ca678', gamma: 1.28, handleAngle: Math.atan(0.5),
+    angles: (() => { const a = Math.atan(0.5);
+      return [a, Math.PI / 2 - a, Math.PI / 2 + a, Math.PI - a,
+              Math.PI + a, 3 * Math.PI / 2 - a, 3 * Math.PI / 2 + a, TAU - a]; })() },
+  { key: 'g11', label: '{11}', color: '#1971c2', gamma: 1.414, handleAngle: Math.PI / 4,
+    angles: [45, 135, 225, 315].map(a => a * DEG) },
 ];
 
-export function familyAngles2D(key) {
-  if (key === 'g10') return [0, 90, 180, 270].map(a => a * DEG);
-  if (key === 'g11') return [45, 135, 225, 315].map(a => a * DEG);
-  const a = Math.atan(0.5);
-  return [a, Math.PI / 2 - a, Math.PI / 2 + a, Math.PI - a,
-          Math.PI + a, 3 * Math.PI / 2 - a, 3 * Math.PI / 2 + a, TAU - a];
+/* Wurtzite/hcp crystal, 2D section containing the c-axis (the (11-20) section).
+   c-axis vertical: {0001} basal normals vertical, {10-10} prism (m-plane) normals
+   horizontal, {10-11} pyramidal normals at 90° - 61.6° from horizontal
+   (61.6° = angle between (0001) and (10-11) planes for ZnO, c/a = 1.60).
+   The {11-20} a-planes are perpendicular to this section and never appear as facets. */
+const PYR = 90 * DEG - 61.6 * DEG;
+export const FAMILIES_HEX = [
+  { key: 'gm', label: '{10-10}', color: '#e8890c', gamma: 1.0, handleAngle: 0,
+    angles: [0, Math.PI], min: 0.80, max: 1.70 },
+  { key: 'gb', label: '{0001}', color: '#1971c2', gamma: 1.80, handleAngle: Math.PI / 2,
+    angles: [Math.PI / 2, 3 * Math.PI / 2], min: 0.50, max: 3.20 },
+  { key: 'gp', label: '{10-11}', color: '#0ca678', gamma: 1.25, handleAngle: PYR,
+    angles: [PYR, Math.PI - PYR, Math.PI + PYR, TAU - PYR], min: 0.50, max: 3.20 },
+];
+FAMILIES_HEX.sym = Math.PI;
+
+export function familyAngles2D(f) {
+  return f.angles;
 }
 
-export function buildPlanes2D(gammas) {
+export function buildPlanes2D(gammas, fams = FAMILIES_2D) {
   const planes = [];
-  for (const f of FAMILIES_2D) {
-    for (const th of familyAngles2D(f.key)) {
+  for (const f of fams) {
+    for (const th of familyAngles2D(f)) {
       planes.push({ nx: Math.cos(th), ny: Math.sin(th), th, h: gammas[f.key], fam: f });
     }
   }
   return planes;
 }
 
-export function wulffPolygon2D(gammas) {
-  const planes = buildPlanes2D(gammas);
-  const B = 3.2 * Math.max(...FAMILIES_2D.map(f => gammas[f.key]));
+export function wulffPolygon2D(gammas, fams = FAMILIES_2D) {
+  const planes = buildPlanes2D(gammas, fams);
+  const B = 3.2 * Math.max(...fams.map(f => gammas[f.key]));
   let poly = [[-B, -B], [B, -B], [B, B], [-B, B]];
   for (const p of planes) poly = clipHalfPlane(poly, p.nx, p.ny, p.h);
 
@@ -76,7 +93,7 @@ export function wulffPolygon2D(gammas) {
 
   const verts = poly.slice();
   const famStats = {};
-  for (const f of FAMILIES_2D) famStats[f.key] = { count: 0, length: 0 };
+  for (const f of fams) famStats[f.key] = { count: 0, length: 0 };
   let perim = 0;
   for (const fc of facets) {
     if (fc.len < 1e-7) continue;
@@ -84,7 +101,7 @@ export function wulffPolygon2D(gammas) {
     famStats[fc.fam.key].length += fc.len;
     perim += fc.len;
   }
-  for (const f of FAMILIES_2D) {
+  for (const f of fams) {
     famStats[f.key].present = famStats[f.key].count > 0;
     famStats[f.key].share = perim > 0 ? famStats[f.key].length / perim : 0;
   }
@@ -96,18 +113,18 @@ export function support2D(verts, theta) {
   return supportMax(verts, Math.cos(theta), Math.sin(theta));
 }
 
-export function missingRanges2D(shape) {
+export function missingRanges2D(shape, sym = Math.PI / 2) {
   const cusps = new Set();
   for (const fc of shape.facets) {
     if (fc.len < 1e-7) continue;
-    const th = ((Math.atan2(fc.n[1], fc.n[0]) % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
+    const th = ((Math.atan2(fc.n[1], fc.n[0]) % sym) + sym) % sym;
     cusps.add(Math.round(th / 1e-4) * 1e-4);
   }
   const sorted = [...cusps].sort((a, b) => a - b);
   const ranges = [];
   for (let i = 0; i < sorted.length; i++) {
     const a = sorted[i];
-    const b = i + 1 < sorted.length ? sorted[i + 1] : sorted[0] + Math.PI / 2;
+    const b = i + 1 < sorted.length ? sorted[i + 1] : sorted[0] + sym;
     if (b - a > 0.02) ranges.push([a, b]);
   }
   return ranges;

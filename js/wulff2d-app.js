@@ -3,11 +3,14 @@ import { FAMILIES_2D, wulffPolygon2D, support2D, missingRanges2D } from './wulff
 const TAU = Math.PI * 2;
 
 export class Wulff2DApp {
-  constructor(gammaCanvas, shapeCanvas, onChange) {
+  constructor(gammaCanvas, shapeCanvas, onChange, fams = FAMILIES_2D,
+              axisLabels = ['[100]', '[010]']) {
     this.gc = gammaCanvas;
     this.sc = shapeCanvas;
     this.onChange = onChange;
-    this.gammas = { g10: 1.0, g21: 1.28, g11: 1.414 };
+    this.fams = fams;
+    this.axisLabels = axisLabels;
+    this.gammas = Object.fromEntries(fams.map(f => [f.key, f.gamma]));
     this.opts = { construction: true, missing: true, labels: true };
     this.quiz = null;
     this.drag = null;
@@ -45,9 +48,10 @@ export class Wulff2DApp {
   _editable(famKey) { return !this.editFilter || famKey === this.editFilter; }
 
   startQuiz() {
+    const k1 = this.fams[1].key, k2 = this.fams[2].key;
     const r = (a, b) => Math.round((a + Math.random() * (b - a)) * 20) / 20;
-    this.quiz = { g21: r(1.0, 1.45), g11: r(1.0, 1.45), revealed: false };
-    this.setGammas({ g10: 1, g21: 1.28, g11: 1.414 });
+    this.quiz = { [k1]: r(1.0, 1.45), [k2]: r(1.0, 1.45), revealed: false };
+    this.setGammas({ [this.fams[0].key]: 1, [k1]: 1.28, [k2]: 1.414 });
     this.draw();
   }
 
@@ -55,7 +59,7 @@ export class Wulff2DApp {
 
   matchScore() {
     if (!this.quiz) return null;
-    const t = wulffPolygon2D({ g10: 1, g21: this.quiz.g21, g11: this.quiz.g11 });
+    const t = wulffPolygon2D({ ...this.quiz, [this.fams[0].key]: 1 }, this.fams);
     let diff = 0, ref = 0;
     const N = 240;
     for (let i = 0; i < N; i++) {
@@ -109,11 +113,13 @@ export class Wulff2DApp {
   _up() { this.drag = null; }
 
   _applyGamma(fam, value) {
-    if (fam.key === 'g10') {
-      this.gammas.g10 = Math.max(0.80, Math.min(1.70, value));
+    const refKey = this.fams[0].key;
+    const lo = fam.min ?? 0.80, hi = fam.max ?? 1.70;
+    if (fam.key === refKey) {
+      this.gammas[fam.key] = Math.max(lo, Math.min(hi, value));
     } else {
-      const ratio = value / this.gammas.g10;
-      this.gammas[fam.key] = this.gammas.g10 * Math.max(0.80, Math.min(1.70, ratio));
+      const ratio = value / this.gammas[refKey];
+      this.gammas[fam.key] = this.gammas[refKey] * Math.max(lo, Math.min(hi, ratio));
     }
     this.shape = wulffPolygon2D(this.gammas);
     this.draw();
@@ -121,7 +127,7 @@ export class Wulff2DApp {
   }
 
   _hitHandle(p) {
-    for (const f of FAMILIES_2D) {
+    for (const f of this.fams) {
       if (!this._editable(f.key)) continue;
       const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
       const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
@@ -206,12 +212,12 @@ export class Wulff2DApp {
     }
     ctx.fillStyle = muted;
     ctx.textAlign = 'center';
-    ctx.fillText('[100]', cx + maxR * 1.32 * s, cy + 4);
-    ctx.fillText('[010]', cx, cy - maxR * 1.28 * s);
+    ctx.fillText(this.axisLabels[0], cx + maxR * 1.32 * s, cy + 4);
+    ctx.fillText(this.axisLabels[1], cx, cy - maxR * 1.28 * s);
     ctx.textAlign = 'left';
 
     if (this.opts.missing) {
-      const ranges = missingRanges2D(this.shape);
+      const ranges = missingRanges2D(this.shape, this.fams.sym ?? Math.PI / 2);
       ctx.setLineDash([4, 4]);
       ctx.strokeStyle = muted;
       for (const [a0, a1] of ranges) {
@@ -282,7 +288,7 @@ export class Wulff2DApp {
     }
     ctx.stroke();
 
-    for (const f of FAMILIES_2D) {
+    for (const f of this.fams) {
       const present = this.shape.famStats[f.key].present;
       const dim = !this._editable(f.key);
       const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
@@ -330,7 +336,7 @@ export class Wulff2DApp {
     let maxR = Math.max(...this.shape.verts.map(v => Math.hypot(v[0], v[1])));
     let target = null;
     if (this.quiz) {
-      target = wulffPolygon2D({ g10: 1, g21: this.quiz.g21, g11: this.quiz.g11 });
+      target = wulffPolygon2D({ ...this.quiz, [this.fams[0].key]: 1 }, this.fams);
       maxR = Math.max(maxR, ...target.verts.map(v => Math.hypot(v[0], v[1])));
     }
     const s = Math.min(w, h) / 2 / (maxR * 1.3);
@@ -345,8 +351,8 @@ export class Wulff2DApp {
     ctx.fillStyle = muted;
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('[100]', cx + maxR * 1.25 * s - 12, cy + 14);
-    ctx.fillText('[010]', cx + 22, cy - maxR * 1.25 * s + 12);
+    ctx.fillText(this.axisLabels[0], cx + maxR * 1.25 * s - 12, cy + 14);
+    ctx.fillText(this.axisLabels[1], cx + 22, cy - maxR * 1.25 * s + 12);
     ctx.textAlign = 'left';
 
     ctx.beginPath();
@@ -402,7 +408,7 @@ export class Wulff2DApp {
         ctx.fillText(fc.fam.label, lx, ly);
         ctx.font = '10px sans-serif';
         ctx.fillStyle = muted;
-        ctx.fillText(`γ = ${(fc.h / this.gammas.g10).toFixed(2)}`, lx, ly + 12);
+        ctx.fillText(`γ = ${(fc.h / this.gammas[this.fams[0].key]).toFixed(2)}`, lx, ly + 12);
         ctx.textAlign = 'left';
       }
     }
