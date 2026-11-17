@@ -372,6 +372,7 @@ if (typeof ResizeObserver !== 'undefined') {
   }
 }
 
+app2d.setGammas({ g10: 1, g21: 1.70, g11: 1.70 });
 sync2d();
 syncHex();
 sync3d();

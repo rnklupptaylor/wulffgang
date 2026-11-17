@@ -36,6 +36,8 @@ and vice versa**, in both directions:
   2D section containing the c-axis of a wurtzite crystal with families {0001} (basal, polar),
   {10-10} (prism m-plane) and {10-11} (pyramidal, normal at 61.6° from the basal normal for
   ZnO's c/a = 1.60). With only {10-10} and {0001} present, L/D = γ{0001}/γ{10-10} exactly.
+* **Start state:** the app opens on the **Square** preset (only {10} relevant, γ{21} = γ{11} = 1.70),
+  so the construction can be taught from the simplest case first.
 * **Display options (2D tabs):** facet colours on the γ-plot (off by default), the Wulff shape
   itself on the γ-plot (off by default, so the construction can be built up from scratch), the
   equilibrium shape on the shape canvas (hidden by default — a **Reveal/Hide** button sits next to
