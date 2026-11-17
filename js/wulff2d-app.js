@@ -475,11 +475,6 @@ export class Wulff2DApp {
         const lx = X + 26 * Math.cos(f.handleAngle + 0.5);
         const ly = Y - 14 - 12 * Math.sin(f.handleAngle);
         ctx.fillText(`γ${f.label} = ${this.gammas[f.key].toFixed(2)}`, lx, ly);
-        if (!present) {
-          ctx.font = '11px sans-serif';
-          ctx.fillStyle = muted;
-          ctx.fillText('facet missing', lx, ly + 13);
-        }
         ctx.textAlign = 'left';
         ctx.globalAlpha = 1;
       }
