@@ -182,6 +182,7 @@ button.primary, .btn-row button {
   cursor: pointer;
 }
 .btn-row button:hover { border-color: var(--accent); color: var(--accent); }
+.btn-row button.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 button.primary:hover { filter: brightness(1.1); color: #fff; }
 

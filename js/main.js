@@ -62,6 +62,23 @@ $('t-construction').addEventListener('change', e => app2d.setOptions({ construct
 $('t-missing').addEventListener('change', e => app2d.setOptions({ missing: e.target.checked }));
 $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.target.checked }));
 
+function makeEditButtons(containerId, app) {
+  const cont = $(containerId);
+  const mk = (label, key) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      app.setEditFilter(key);
+      cont.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+    });
+    cont.appendChild(b);
+    return b;
+  };
+  mk('All', null).classList.add('active');
+  for (const f of FAMILIES_2D) mk('Edit ' + f.label, f.key);
+}
+makeEditButtons('edit-2d', app2d);
+
 const PRESETS_2D = [
   { name: 'Square', g: { g10: 1, g21: 1.70, g11: 1.70 } },
   { name: 'Broken-bond square lattice (√2)', g: { g10: 1, g21: 1.55, g11: 1.414 } },
@@ -190,6 +207,7 @@ function updateQuizUI() {
 }
 
 function syncQuiz() { updateQuizUI(); }
+makeEditButtons('quiz-edit', appQ);
 
 $('sq-g21').addEventListener('input', e => { appQ.setGammas({ g21: parseFloat(e.target.value) * appQ.gammas.g10 }); });
 $('sq-g11').addEventListener('input', e => { appQ.setGammas({ g11: parseFloat(e.target.value) * appQ.gammas.g10 }); });

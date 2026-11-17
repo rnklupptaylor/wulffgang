@@ -12,6 +12,7 @@ export class Wulff2DApp {
     this.quiz = null;
     this.drag = null;
     this.hover = null;
+    this.editFilter = null;
 
     const targets = gammaCanvas === shapeCanvas
       ? [[gammaCanvas, 'both']]
@@ -34,6 +35,14 @@ export class Wulff2DApp {
   }
 
   setOptions(o) { Object.assign(this.opts, o); this.draw(); }
+
+  setEditFilter(key) {
+    this.editFilter = key;
+    this.hover = null;
+    this.draw();
+  }
+
+  _editable(famKey) { return !this.editFilter || famKey === this.editFilter; }
 
   startQuiz() {
     const r = (a, b) => Math.round((a + Math.random() * (b - a)) * 20) / 20;
@@ -113,6 +122,7 @@ export class Wulff2DApp {
 
   _hitHandle(p) {
     for (const f of FAMILIES_2D) {
+      if (!this._editable(f.key)) continue;
       const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
       const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
       const [sx, sy] = this.g2s(this.gc, hx, hy);
@@ -127,6 +137,7 @@ export class Wulff2DApp {
     const cv = this.sc;
     for (const fc of this.shape.facets) {
       if (fc.len < 1e-7) continue;
+      if (!this._editable(fc.fam.key)) continue;
       const a = this.g2s(cv, fc.a[0], fc.a[1]);
       const b = this.g2s(cv, fc.b[0], fc.b[1]);
       if (this._distToSeg(p, a, b) < 12) return { fam: fc.fam, n: fc.n };
@@ -252,10 +263,12 @@ export class Wulff2DApp {
       if (fc.len < 1e-7) continue;
       ctx.strokeStyle = fc.fam.color;
       ctx.lineWidth = 3.5;
+      ctx.globalAlpha = this._editable(fc.fam.key) ? 1 : 0.25;
       ctx.beginPath();
       ctx.moveTo(cx + fc.a[0] * s, cy - fc.a[1] * s);
       ctx.lineTo(cx + fc.b[0] * s, cy - fc.b[1] * s);
       ctx.stroke();
+      ctx.globalAlpha = 1;
     }
 
     ctx.strokeStyle = this.css('--plot-red');
@@ -271,16 +284,18 @@ export class Wulff2DApp {
 
     for (const f of FAMILIES_2D) {
       const present = this.shape.famStats[f.key].present;
+      const dim = !this._editable(f.key);
       const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
       const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
       const X = cx + hx * s, Y = cy - hy * s;
       ctx.setLineDash([3, 3]);
       ctx.strokeStyle = f.color;
-      ctx.globalAlpha = 0.55;
+      ctx.globalAlpha = dim ? 0.2 : 0.55;
       ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X, Y); ctx.stroke();
       ctx.globalAlpha = 1;
       ctx.setLineDash([]);
 
+      ctx.globalAlpha = dim ? 0.3 : 1;
       ctx.beginPath();
       ctx.arc(X, Y, this.hover && this.hover.fam.key === f.key ? 9 : 7, 0, TAU);
       ctx.fillStyle = present ? f.color : this.css('--card');
@@ -288,8 +303,10 @@ export class Wulff2DApp {
       ctx.lineWidth = 2;
       ctx.strokeStyle = present ? '#fff' : muted;
       ctx.stroke();
+      ctx.globalAlpha = 1;
 
       if (this.opts.labels) {
+        ctx.globalAlpha = dim ? 0.3 : 1;
         ctx.font = 'bold 12px sans-serif';
         ctx.fillStyle = present ? f.color : muted;
         ctx.textAlign = 'center';
@@ -302,6 +319,7 @@ export class Wulff2DApp {
           ctx.fillText('facet missing', lx, ly + 13);
         }
         ctx.textAlign = 'left';
+        ctx.globalAlpha = 1;
       }
     }
   }
@@ -361,10 +379,12 @@ export class Wulff2DApp {
       if (fc.len < 1e-7) continue;
       const hot = this.hover && this.hover.fam.key === fc.fam.key;
       const drag = this.drag && this.drag.type === 'facet' && this.drag.fam.key === fc.fam.key;
+      const dim = !this._editable(fc.fam.key);
       ctx.strokeStyle = fc.fam.color;
       ctx.lineWidth = hot || drag ? 10 : 6;
       ctx.lineCap = 'round';
-      if (hot || drag) { ctx.globalAlpha = 0.85; } else { ctx.globalAlpha = 0.9; }
+      if (dim) { ctx.globalAlpha = 0.25; }
+      else if (hot || drag) { ctx.globalAlpha = 0.85; } else { ctx.globalAlpha = 0.9; }
       ctx.beginPath();
       ctx.moveTo(cx + fc.a[0] * s, cy - fc.a[1] * s);
       ctx.lineTo(cx + fc.b[0] * s, cy - fc.b[1] * s);
