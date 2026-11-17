@@ -50,10 +50,13 @@
     </div>
 
     <div class="card canvas-card">
-      <h2>② The equilibrium shape (drag the facets!)</h2>
+      <div class="card-head">
+        <h2>② The equilibrium shape (drag the facets!)</h2>
+        <button id="reveal-shape" class="reveal-btn">Reveal</button>
+      </div>
       <div class="canvas-wrap"><canvas id="canvas-shape"></canvas></div>
-      <p class="caption">The crystal that grows slowly at equilibrium — <strong>hidden until you tick
-      “equilibrium shape”</strong>; until then only the construction planes are shown. Each facet sits
+      <p class="caption">The crystal that grows slowly at equilibrium — <strong>hidden until you press
+      Reveal</strong>; until then only the construction planes are shown. Each facet sits
       at distance h = λγ from the centre (Wulff theorem). <strong>Drag a facet in or out</strong> and
       watch the γ-plot follow — the reverse direction: shape → surface energies.</p>
     </div>
@@ -95,12 +98,11 @@
       <p class="note" id="missing-note-2d"></p>
       <div class="toggles">
         <label><input type="checkbox" id="t-construction" checked> construction planes</label>
-        <label><input type="checkbox" id="t-missing" checked> mark missing orientations</label>
+        <label><input type="checkbox" id="t-missing"> mark missing orientations</label>
         <label><input type="checkbox" id="t-labels" checked> facet labels</label>
         <label><input type="checkbox" id="t-gammafacets"> facet colours on γ-plot</label>
         <label><input type="checkbox" id="t-region"> Wulff shape on γ-plot</label>
         <label><input type="checkbox" id="t-single"> one drag point per family</label>
-        <label><input type="checkbox" id="t-shape"> equilibrium shape</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
@@ -311,10 +313,13 @@
     </div>
 
     <div class="card canvas-card">
-      <h2>Crystal section</h2>
+      <div class="card-head">
+        <h2>Crystal section</h2>
+        <button id="reveal-hex" class="reveal-btn">Reveal</button>
+      </div>
       <div class="canvas-wrap"><canvas id="canvas-hexshape"></canvas></div>
-      <p class="caption">Section through the c-axis (vertical) — <strong>hidden until you tick
-      “crystal section”</strong>; until then only the construction planes are shown. The {11-20}
+      <p class="caption">Section through the c-axis (vertical) — <strong>hidden until you press
+      Reveal</strong>; until then only the construction planes are shown. The {11-20}
       a-planes are perpendicular to this section and never appear as facets here.</p>
     </div>
 
@@ -357,12 +362,11 @@
       (with only {10-10} and {0001} present: L/D = γ{0001}/γ{10-10} exactly).</p>
       <div class="toggle-row">
         <label><input type="checkbox" id="th-construction" checked> Wulff construction lines</label>
-        <label><input type="checkbox" id="th-missing" checked> Missing orientations</label>
+        <label><input type="checkbox" id="th-missing"> Missing orientations</label>
         <label><input type="checkbox" id="th-labels" checked> Labels</label>
         <label><input type="checkbox" id="th-gammafacets"> Facet colours on γ-plot</label>
         <label><input type="checkbox" id="th-region"> Shape on γ-plot</label>
         <label><input type="checkbox" id="th-single"> One drag point per family</label>
-        <label><input type="checkbox" id="th-shape"> Crystal section</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
@@ -514,7 +518,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.7</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.8</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>

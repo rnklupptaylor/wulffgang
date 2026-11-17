@@ -38,8 +38,9 @@ and vice versa**, in both directions:
   ZnO's c/a = 1.60). With only {10-10} and {0001} present, L/D = γ{0001}/γ{10-10} exactly.
 * **Display options (2D tabs):** facet colours on the γ-plot (off by default), the Wulff shape
   itself on the γ-plot (off by default, so the construction can be built up from scratch), the
-  equilibrium shape on the shape canvas (off by default — until enabled, only the construction
-  planes are shown there), one-vs-all drag points per plane family (all symmetry-equivalent
+  equilibrium shape on the shape canvas (hidden by default — a **Reveal/Hide** button sits next to
+  the canvas title; until revealed, only the construction planes are shown), missing-orientation
+  marks (off by default), one-vs-all drag points per plane family (all symmetry-equivalent
   members shown and draggable by default), a construction-line density slider (6–180 perpendiculars,
   default 6), and optional higher-index families — {31}, {32} in the cubic section, {10-12},
   {10-13} in the hexagonal section (their plane angles computed from c/a = 1.60) — activatable

@@ -14,7 +14,7 @@ export class Wulff2DApp {
     this.fams = fams.slice();
     this.axisLabels = axisLabels;
     this.gammas = Object.fromEntries(this.allFams.map(f => [f.key, f.gamma]));
-    this.opts = { construction: true, missing: true, labels: true,
+    this.opts = { construction: true, missing: false, labels: true,
                   gammaFacets: false, region: false, constructionDensity: 6,
                   singleHandle: false, shapeVisible: false };
     this.quiz = null;
@@ -485,7 +485,7 @@ export class Wulff2DApp {
       ctx.fillStyle = muted;
       ctx.font = '12px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('equilibrium shape hidden — enable it with the display toggle', w / 2, h - 12);
+      ctx.fillText('equilibrium shape hidden — press "Reveal" (top right) to show it', w / 2, h - 12);
       ctx.textAlign = 'left';
       return;
     }

@@ -58,7 +58,23 @@ a { color: var(--accent); }
   font-size: 1.7rem;
   letter-spacing: 0.5px;
 }
-.header-title .gamma { color: #ffd43b; }
+.header-title .gamma {
+  color: #ffd43b;
+  position: relative;
+}
+.header-title .gamma::before {
+  content: '';
+  position: absolute;
+  top: -0.16em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.6em;
+  height: 0.32em;
+  border: 2px dotted #ffd43b;
+  border-bottom: none;
+  border-radius: 1em 1em 0 0;
+  pointer-events: none;
+}
 .subtitle { margin: 0.15rem 0 0; font-size: 1.02rem; opacity: 0.95; }
 .byline { margin: 0.2rem 0 0; font-size: 0.82rem; opacity: 0.8; }
 .icon-btn {
@@ -116,6 +132,25 @@ main {
 .card h2 { margin: 0 0 0.6rem; font-size: 1.12rem; color: var(--accent); }
 .card h3 { margin: 0.9rem 0 0.4rem; font-size: 0.98rem; }
 .card h3:first-child { margin-top: 0; }
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+.card-head h2 { margin-bottom: 0.6rem; }
+.reveal-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.32rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex: none;
+}
+.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ---------- viewport-fit workspace (no scrolling while tweaking) ---------- */
 .workspace {

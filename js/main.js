@@ -87,7 +87,15 @@ $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.targe
 $('t-gammafacets').addEventListener('change', e => app2d.setOptions({ gammaFacets: e.target.checked }));
 $('t-region').addEventListener('change', e => app2d.setOptions({ region: e.target.checked }));
 $('t-single').addEventListener('change', e => app2d.setOptions({ singleHandle: e.target.checked }));
-$('t-shape').addEventListener('change', e => app2d.setOptions({ shapeVisible: e.target.checked }));
+
+function wireReveal(btnId, app) {
+  const b = $(btnId);
+  b.addEventListener('click', () => {
+    app.setOptions({ shapeVisible: !app.opts.shapeVisible });
+    b.textContent = app.opts.shapeVisible ? 'Hide' : 'Reveal';
+  });
+}
+wireReveal('reveal-shape', app2d);
 $('r-construction').addEventListener('input', e => {
   $('vr-construction').textContent = e.target.value;
   app2d.setOptions({ constructionDensity: parseInt(e.target.value) });
@@ -193,13 +201,13 @@ $('th-labels').addEventListener('change', e => appHex.setOptions({ labels: e.tar
 $('th-gammafacets').addEventListener('change', e => appHex.setOptions({ gammaFacets: e.target.checked }));
 $('th-region').addEventListener('change', e => appHex.setOptions({ region: e.target.checked }));
 $('th-single').addEventListener('change', e => appHex.setOptions({ singleHandle: e.target.checked }));
-$('th-shape').addEventListener('change', e => appHex.setOptions({ shapeVisible: e.target.checked }));
 $('rh-construction').addEventListener('input', e => {
   $('vrh-construction').textContent = e.target.value;
   appHex.setOptions({ constructionDensity: parseInt(e.target.value) });
 });
 wireExtras(appHex, 'sh');
 makeEditButtons('edit-hex', appHex);
+wireReveal('reveal-hex', appHex);
 
 const PRESETS_HEX = [
   { name: 'ZnO-like nanorod', g: { gm: 1, gb: 1.80, gp: 1.25 } },
