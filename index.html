@@ -43,28 +43,31 @@
       <p class="caption"><strong>Red:</strong> γ(θ), the γ-plot (cusps at the facet orientations).
       <strong>Thin blue lines:</strong> planes perpendicular to the radius vector at distance h = γ.
       <strong>Blue:</strong> their inner envelope — the equilibrium shape (toggleable). Drag the coloured
-      handles to change γ, or <strong>click the red curve</strong> to inspect one construction plane
-      (radius vector + perpendicular); click the marked point again to remove it, or step it along
-      the curve with the <strong>←/→ arrow keys</strong> (Shift: 10° steps).</p>
+      handles — one on every symmetry-equivalent plane of each family — to change γ, or
+      <strong>click the red curve</strong> to inspect one construction plane (radius vector +
+      perpendicular); click the marked point again to remove it, or step it along the curve with the
+      <strong>←/→ arrow keys</strong> (Shift: 10° steps).</p>
     </div>
 
     <div class="card canvas-card">
       <h2>② The equilibrium shape (drag the facets!)</h2>
       <div class="canvas-wrap"><canvas id="canvas-shape"></canvas></div>
-      <p class="caption">Each facet sits at distance h = λγ from the centre (Wulff theorem).
-      <strong>Drag a facet in or out</strong> and watch the γ-plot follow — the reverse direction:
-      shape → surface energies.</p>
+      <p class="caption">The crystal that grows slowly at equilibrium — <strong>hidden until you tick
+      “equilibrium shape”</strong>; until then only the construction planes are shown. Each facet sits
+      at distance h = λγ from the centre (Wulff theorem). <strong>Drag a facet in or out</strong> and
+      watch the γ-plot follow — the reverse direction: shape → surface energies.</p>
     </div>
 
     <div class="side-col">
     <div class="card">
       <h3>Surface energies</h3>
-      <p class="note">Rounded teaching values for a crystal with four-fold symmetry. Only <em>ratios</em> matter,
-      so γ{10} is the reference. All values are editable.</p>
+      <p class="note">Absolute values, as plotted in the diagram (grid circles = 1, 2, …). Only
+      <em>ratios</em> affect the shape — scale every γ by the same factor and nothing changes.
+      All values are editable.</p>
       <div class="slider-row">
-        <label>γ{10} <small>(reference)</small></label>
-        <input type="range" min="1" max="1" step="0.001" value="1" disabled>
-        <output>1.000</output>
+        <label>γ{10}</label>
+        <input type="range" id="s-g10" min="0.80" max="1.70" step="0.005" value="1">
+        <output id="v-g10">1.000</output>
       </div>
       <div class="slider-row">
         <label>γ{21}</label>
@@ -86,7 +89,7 @@
     <div class="card">
       <h3>Readout</h3>
       <table class="readout" id="table-2d">
-        <thead><tr><th>Facet</th><th>γ (rel.)</th><th>on shape?</th><th>share of perimeter</th></tr></thead>
+        <thead><tr><th>Facet</th><th>γ</th><th>on shape?</th><th>share of perimeter</th></tr></thead>
         <tbody></tbody>
       </table>
       <p class="note" id="missing-note-2d"></p>
@@ -96,11 +99,13 @@
         <label><input type="checkbox" id="t-labels" checked> facet labels</label>
         <label><input type="checkbox" id="t-gammafacets"> facet colours on γ-plot</label>
         <label><input type="checkbox" id="t-region"> Wulff shape on γ-plot</label>
+        <label><input type="checkbox" id="t-single"> one drag point per family</label>
+        <label><input type="checkbox" id="t-shape"> equilibrium shape</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
-        <input type="range" id="r-construction" min="6" max="180" step="1" value="180">
-        <output id="vr-construction">180</output>
+        <input type="range" id="r-construction" min="6" max="180" step="1" value="6">
+        <output id="vr-construction">6</output>
       </div>
       <details id="higher-2d">
         <summary>Higher-index families {31}, {32}</summary>
@@ -308,19 +313,21 @@
     <div class="card canvas-card">
       <h2>Crystal section</h2>
       <div class="canvas-wrap"><canvas id="canvas-hexshape"></canvas></div>
-      <p class="caption">Section through the c-axis (vertical). The {11-20} a-planes are
-      perpendicular to this section and never appear as facets here.</p>
+      <p class="caption">Section through the c-axis (vertical) — <strong>hidden until you tick
+      “crystal section”</strong>; until then only the construction planes are shown. The {11-20}
+      a-planes are perpendicular to this section and never appear as facets here.</p>
     </div>
 
     <div class="side-col">
     <div class="card">
       <h3>Surface energies</h3>
-      <p class="note">Teaching values. In ZnO the polar Zn-terminated (0001) face has the highest
-      energy, the nonpolar m-plane {10-10} the lowest — hence nanorods.</p>
+      <p class="note">Absolute values, as plotted in the diagram. Only <em>ratios</em> affect the
+      shape. In ZnO the polar Zn-terminated (0001) face has the highest energy, the nonpolar
+      m-plane {10-10} the lowest — hence nanorods.</p>
       <div class="slider-row">
-        <label>γ{10-10} <small>(reference)</small></label>
-        <input type="range" min="1" max="1" step="0.001" value="1" disabled>
-        <output>1.000</output>
+        <label>γ{10-10}</label>
+        <input type="range" id="sh-gm" min="0.50" max="3.20" step="0.005" value="1">
+        <output id="vh-gm">1.000</output>
       </div>
       <div class="slider-row">
         <label>γ{0001} / γ{10-10}</label>
@@ -342,7 +349,7 @@
     <div class="card">
       <h3>Readout</h3>
       <table class="readout" id="table-hex">
-        <thead><tr><th>Plane</th><th>γ ratio</th><th>Facets</th><th>Perimeter</th></tr></thead>
+        <thead><tr><th>Plane</th><th>γ</th><th>Facets</th><th>Perimeter</th></tr></thead>
         <tbody></tbody>
       </table>
       <p class="note" id="missing-note-hex"></p>
@@ -354,11 +361,13 @@
         <label><input type="checkbox" id="th-labels" checked> Labels</label>
         <label><input type="checkbox" id="th-gammafacets"> Facet colours on γ-plot</label>
         <label><input type="checkbox" id="th-region"> Shape on γ-plot</label>
+        <label><input type="checkbox" id="th-single"> One drag point per family</label>
+        <label><input type="checkbox" id="th-shape"> Crystal section</label>
       </div>
       <div class="slider-row">
         <label>Construction lines</label>
-        <input type="range" id="rh-construction" min="6" max="180" step="1" value="180">
-        <output id="vrh-construction">180</output>
+        <input type="range" id="rh-construction" min="6" max="180" step="1" value="6">
+        <output id="vrh-construction">6</output>
       </div>
       <details id="higher-hex">
         <summary>Higher-index families {10-12}, {10-13}</summary>
@@ -505,7 +514,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.6</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.7</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>

@@ -37,10 +37,16 @@ and vice versa**, in both directions:
   {10-10} (prism m-plane) and {10-11} (pyramidal, normal at 61.6° from the basal normal for
   ZnO's c/a = 1.60). With only {10-10} and {0001} present, L/D = γ{0001}/γ{10-10} exactly.
 * **Display options (2D tabs):** facet colours on the γ-plot (off by default), the Wulff shape
-  itself on the γ-plot (off by default, so the construction can be built up from scratch), a
-  construction-line density slider (180 → 6 perpendiculars), and optional higher-index families —
-  {31}, {32} in the cubic section, {10-12}, {10-13} in the hexagonal section (their plane angles
-  computed from c/a = 1.60) — activatable per checkbox with their own γ sliders.
+  itself on the γ-plot (off by default, so the construction can be built up from scratch), the
+  equilibrium shape on the shape canvas (off by default — until enabled, only the construction
+  planes are shown there), one-vs-all drag points per plane family (all symmetry-equivalent
+  members shown and draggable by default), a construction-line density slider (6–180 perpendiculars,
+  default 6), and optional higher-index families — {31}, {32} in the cubic section, {10-12},
+  {10-13} in the hexagonal section (their plane angles computed from c/a = 1.60) — activatable
+  per checkbox with their own γ sliders.
+* **Absolute γ values:** sliders, outputs and tables show absolute surface energies, matching the
+  radius scale of the γ-plot; the reference γ is editable too. Only ratios affect the shape, so a
+  common scaling of all γ leaves it unchanged.
 * **Construction inspector:** clicking the red γ(θ) curve highlights a single construction step —
   the radius vector and the perpendicular plane at that orientation (with right-angle marker and
   the γ value); clicking the marked point again removes it, clicking elsewhere on the curve moves

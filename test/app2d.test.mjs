@@ -62,15 +62,31 @@ app5.draw = () => {};
 app5.inspect = { th: 0.5 };
 const ev = key => ({ key, shiftKey: false, preventDefault() {} });
 app5._key(ev('ArrowRight'));
-approx(app5.inspect.th, 0.5 + Math.PI / 180, 1e-12, 'arrow-right steps +1 deg');
+approx(app5.inspect.th, 0.5 - Math.PI / 180, 1e-12, 'arrow-right steps -1 deg (clockwise)');
 app5._key(ev('ArrowLeft'));
-approx(app5.inspect.th, 0.5, 1e-12, 'arrow-left steps -1 deg');
+approx(app5.inspect.th, 0.5, 1e-12, 'arrow-left steps +1 deg');
 app5.inspect.th = 0.005;
-app5._key(ev('ArrowLeft'));
+app5._key(ev('ArrowRight'));
 approx(app5.inspect.th, 0.005 - Math.PI / 180 + 2 * Math.PI, 1e-9, 'wrap-around below zero');
 app5.inspect = null;
 app5._key(ev('ArrowRight'));
 if (app5.inspect !== null) { console.error('FAIL: keys must do nothing without inspection'); process.exit(1); }
 console.log('ok arrow keys ignored without inspection point');
+
+// Handles exist at every member angle of a family (not just the representative)
+app5.gT = { cx: 50, cy: 50, s: 30 };
+app5.setEditFilter(null);
+const g10fam = FAMILIES_2D[0];
+const alt = g10fam.angles.find(a => Math.abs(a - g10fam.handleAngle) > 0.1);
+const hitAlt = app5._hitHandle([50 + 30 * Math.cos(alt), 50 - 30 * Math.sin(alt)]);
+if (!hitAlt || hitAlt.fam.key !== 'g10') { console.error('FAIL: handle at non-representative family member not hit'); process.exit(1); }
+console.log('ok handle hit at non-representative family member');
+app5.setOptions({ singleHandle: true });
+const hitRep = app5._hitHandle([50 + 30 * Math.cos(alt), 50 - 30 * Math.sin(alt)]);
+if (hitRep) { console.error('FAIL: singleHandle mode must not expose hidden handles'); process.exit(1); }
+const hitRep2 = app5._hitHandle([50 + 30 * Math.cos(g10fam.handleAngle), 50 - 30 * Math.sin(g10fam.handleAngle)]);
+if (!hitRep2 || hitRep2.fam.key !== 'g10') { console.error('FAIL: representative handle not hit in singleHandle mode'); process.exit(1); }
+console.log('ok singleHandle mode restricts hit-testing to the representative');
+app5.setOptions({ singleHandle: false });
 
 console.log('APP2D TESTS PASSED');

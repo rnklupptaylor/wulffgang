@@ -39,14 +39,19 @@ const app2d = new Wulff2DApp($('canvas-gamma'), $('canvas-shape'), sync2d,
   FAMILIES_2D, ['[100]', '[010]'], FAMILIES_2D_EXTRAS);
 
 function sync2d() {
-  const cl = x => Math.max(0.80, Math.min(1.70, x));
   const ref = app2d.gammas.g10;
   for (const f of app2d.allFams) {
-    if (f.key === app2d.baseFams[0].key) continue;
-    const ratio = app2d.gammas[f.key] / ref;
     const v = $(`v-${f.key}`), s = $(`s-${f.key}`);
-    if (v) v.textContent = ratio.toFixed(3);
-    if (s && !s.disabled) s.value = cl(ratio);
+    if (v) v.textContent = app2d.gammas[f.key].toFixed(3);
+    if (!s) continue;
+    if (f.key === app2d.baseFams[0].key) {
+      if (!s.disabled) s.value = app2d.gammas[f.key];
+      continue;
+    }
+    const lo = (f.min ?? 0.80) * ref, hi = (f.max ?? 1.70) * ref;
+    s.min = lo.toFixed(3);
+    s.max = hi.toFixed(3);
+    if (!s.disabled) s.value = Math.max(lo, Math.min(hi, app2d.gammas[f.key]));
   }
   updateTable2d(app2d, 'table-2d', 'missing-note-2d');
   refreshEditButtons();
@@ -60,7 +65,7 @@ function updateTable2d(app, tableId, noteId) {
     const st = app.shape.famStats[f.key];
     const tr = document.createElement('tr');
     tr.innerHTML = `<td><span class="swatch" style="background:${f.color}"></span>${f.label}</td>
-      <td>${(app.gammas[f.key] / app.gammas[ref]).toFixed(3)}</td>
+      <td>${app.gammas[f.key].toFixed(3)}</td>
       <td class="${st.present ? 'yes' : 'no'}">${st.present ? st.count + '×' : 'missing'}</td>
       <td>${st.present ? (st.share * 100).toFixed(1) + ' %' : '—'}</td>`;
     tb.appendChild(tr);
@@ -72,23 +77,23 @@ function updateTable2d(app, tableId, noteId) {
 }
 
 for (const f of app2d.baseFams) {
-  if (f.key === app2d.baseFams[0].key) continue;
   const sl = $(`s-${f.key}`);
   if (sl) sl.addEventListener('input', e =>
-    app2d.setGammas({ [f.key]: parseFloat(e.target.value) * app2d.gammas.g10 }));
+    app2d.setGammas({ [f.key]: parseFloat(e.target.value) }));
 }
 $('t-construction').addEventListener('change', e => app2d.setOptions({ construction: e.target.checked }));
 $('t-missing').addEventListener('change', e => app2d.setOptions({ missing: e.target.checked }));
 $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.target.checked }));
 $('t-gammafacets').addEventListener('change', e => app2d.setOptions({ gammaFacets: e.target.checked }));
 $('t-region').addEventListener('change', e => app2d.setOptions({ region: e.target.checked }));
+$('t-single').addEventListener('change', e => app2d.setOptions({ singleHandle: e.target.checked }));
+$('t-shape').addEventListener('change', e => app2d.setOptions({ shapeVisible: e.target.checked }));
 $('r-construction').addEventListener('input', e => {
   $('vr-construction').textContent = e.target.value;
   app2d.setOptions({ constructionDensity: parseInt(e.target.value) });
 });
 
 function wireExtras(app, sliderPrefix) {
-  const refKey = app.baseFams[0].key;
   for (const f of app.extraFams) {
     const cb = $(`e-${f.key}`);
     const sl = $(`${sliderPrefix}-${f.key}`);
@@ -99,7 +104,7 @@ function wireExtras(app, sliderPrefix) {
       app.setActive(keys);
     });
     sl.addEventListener('input', e =>
-      app.setGammas({ [f.key]: parseFloat(e.target.value) * app.gammas[refKey] }));
+      app.setGammas({ [f.key]: parseFloat(e.target.value) }));
   }
 }
 wireExtras(app2d, 's');
@@ -157,14 +162,19 @@ const appHex = new Wulff2DApp($('canvas-hexgamma'), $('canvas-hexshape'), syncHe
   FAMILIES_HEX, ['[1-100]', '[0001]'], FAMILIES_HEX_EXTRAS);
 
 function syncHex() {
-  const cl = x => Math.max(0.50, Math.min(3.20, x));
   const ref = appHex.gammas.gm;
   for (const f of appHex.allFams) {
-    if (f.key === appHex.baseFams[0].key) continue;
-    const ratio = appHex.gammas[f.key] / ref;
     const v = $(`vh-${f.key}`), s = $(`sh-${f.key}`);
-    if (v) v.textContent = ratio.toFixed(3);
-    if (s && !s.disabled) s.value = cl(ratio);
+    if (v) v.textContent = appHex.gammas[f.key].toFixed(3);
+    if (!s) continue;
+    if (f.key === appHex.baseFams[0].key) {
+      if (!s.disabled) s.value = appHex.gammas[f.key];
+      continue;
+    }
+    const lo = (f.min ?? 0.50) * ref, hi = (f.max ?? 3.20) * ref;
+    s.min = lo.toFixed(3);
+    s.max = hi.toFixed(3);
+    if (!s.disabled) s.value = Math.max(lo, Math.min(hi, appHex.gammas[f.key]));
   }
   const xs = appHex.shape.poly.map(v => v[0]), ys = appHex.shape.poly.map(v => v[1]);
   const L = Math.max(...ys) - Math.min(...ys), D = Math.max(...xs) - Math.min(...xs);
@@ -173,15 +183,17 @@ function syncHex() {
   refreshEditButtons();
 }
 
-for (const [id, key] of [['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
+for (const [id, key] of [['sh-gm', 'gm'], ['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
   $(id).addEventListener('input', e =>
-    appHex.setGammas({ [key]: parseFloat(e.target.value) * appHex.gammas.gm }));
+    appHex.setGammas({ [key]: parseFloat(e.target.value) }));
 }
 $('th-construction').addEventListener('change', e => appHex.setOptions({ construction: e.target.checked }));
 $('th-missing').addEventListener('change', e => appHex.setOptions({ missing: e.target.checked }));
 $('th-labels').addEventListener('change', e => appHex.setOptions({ labels: e.target.checked }));
 $('th-gammafacets').addEventListener('change', e => appHex.setOptions({ gammaFacets: e.target.checked }));
 $('th-region').addEventListener('change', e => appHex.setOptions({ region: e.target.checked }));
+$('th-single').addEventListener('change', e => appHex.setOptions({ singleHandle: e.target.checked }));
+$('th-shape').addEventListener('change', e => appHex.setOptions({ shapeVisible: e.target.checked }));
 $('rh-construction').addEventListener('input', e => {
   $('vrh-construction').textContent = e.target.value;
   appHex.setOptions({ constructionDensity: parseInt(e.target.value) });
@@ -298,10 +310,10 @@ const appQ = new Wulff2DApp($('canvas-quiz'), $('canvas-quiz'), syncQuiz);
 
 function updateQuizUI() {
   const cl = x => Math.max(0.80, Math.min(1.70, x));
-  $('sq-g21').value = cl(appQ.gammas.g21 / appQ.gammas.g10);
-  $('sq-g11').value = cl(appQ.gammas.g11 / appQ.gammas.g10);
-  $('vq-g21').textContent = (appQ.gammas.g21 / appQ.gammas.g10).toFixed(3);
-  $('vq-g11').textContent = (appQ.gammas.g11 / appQ.gammas.g10).toFixed(3);
+  $('sq-g21').value = cl(appQ.gammas.g21);
+  $('sq-g11').value = cl(appQ.gammas.g11);
+  $('vq-g21').textContent = appQ.gammas.g21.toFixed(3);
+  $('vq-g11').textContent = appQ.gammas.g11.toFixed(3);
   const m = appQ.matchScore();
   if (m !== null) $('quiz-matchbar').style.width = (m * 100).toFixed(0) + '%';
   if (!appQ.quiz) return;
@@ -319,8 +331,8 @@ function updateQuizUI() {
 function syncQuiz() { updateQuizUI(); }
 makeEditButtons('quiz-edit', appQ);
 
-$('sq-g21').addEventListener('input', e => { appQ.setGammas({ g21: parseFloat(e.target.value) * appQ.gammas.g10 }); });
-$('sq-g11').addEventListener('input', e => { appQ.setGammas({ g11: parseFloat(e.target.value) * appQ.gammas.g10 }); });
+$('sq-g21').addEventListener('input', e => { appQ.setGammas({ g21: parseFloat(e.target.value) }); });
+$('sq-g11').addEventListener('input', e => { appQ.setGammas({ g11: parseFloat(e.target.value) }); });
 $('quiz-new').addEventListener('click', () => { appQ.startQuiz(); $('quiz-answer').textContent = ''; });
 $('quiz-reveal').addEventListener('click', () => {
   if (!appQ.quiz) appQ.startQuiz();

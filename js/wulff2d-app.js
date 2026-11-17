@@ -15,7 +15,8 @@ export class Wulff2DApp {
     this.axisLabels = axisLabels;
     this.gammas = Object.fromEntries(this.allFams.map(f => [f.key, f.gamma]));
     this.opts = { construction: true, missing: true, labels: true,
-                  gammaFacets: false, region: false, constructionDensity: 180 };
+                  gammaFacets: false, region: false, constructionDensity: 6,
+                  singleHandle: false, shapeVisible: false };
     this.quiz = null;
     this.drag = null;
     this.hover = null;
@@ -136,7 +137,7 @@ export class Wulff2DApp {
     const ae = document.activeElement;
     if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) return;
     const step = (e.shiftKey ? 10 : 1) * Math.PI / 180;
-    this.inspect.th = (this.inspect.th + (e.key === 'ArrowRight' ? step : -step) + TAU) % TAU;
+    this.inspect.th = (this.inspect.th + (e.key === 'ArrowRight' ? -step : step) + TAU) % TAU;
     this.draw();
     e.preventDefault();
   }
@@ -180,13 +181,17 @@ export class Wulff2DApp {
   }
 
   _hitHandle(p) {
+    if (this.gc === this.sc) return null;
     for (const f of this.fams) {
       if (!this._editable(f.key)) continue;
-      const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
-      const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
-      const [sx, sy] = this.g2s(this.gc, hx, hy);
-      if (Math.hypot(p[0] - sx, p[1] - sy) < 16) {
-        return { fam: f, n: [Math.cos(f.handleAngle), Math.sin(f.handleAngle)] };
+      const angles = this.opts.singleHandle ? [f.handleAngle] : f.angles;
+      for (const a of angles) {
+        const hx = this.gammas[f.key] * Math.cos(a);
+        const hy = this.gammas[f.key] * Math.sin(a);
+        const [sx, sy] = this.g2s(this.gc, hx, hy);
+        if (Math.hypot(p[0] - sx, p[1] - sy) < 16) {
+          return { fam: f, n: [Math.cos(a), Math.sin(a)] };
+        }
       }
     }
     return null;
@@ -194,6 +199,7 @@ export class Wulff2DApp {
 
   _hitFacet(p) {
     const cv = this.sc;
+    if (!this.opts.shapeVisible && !this.quiz) return null;
     for (const fc of this.shape.facets) {
       if (fc.len < 1e-7) continue;
       if (!this._editable(fc.fam.key)) continue;
@@ -390,27 +396,32 @@ export class Wulff2DApp {
     for (const f of this.fams) {
       const present = this.shape.famStats[f.key].present;
       const dim = !this._editable(f.key);
-      const hx = this.gammas[f.key] * Math.cos(f.handleAngle);
-      const hy = this.gammas[f.key] * Math.sin(f.handleAngle);
-      const X = cx + hx * s, Y = cy - hy * s;
-      ctx.setLineDash([3, 3]);
-      ctx.strokeStyle = f.color;
-      ctx.globalAlpha = dim ? 0.2 : 0.55;
-      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X, Y); ctx.stroke();
-      ctx.globalAlpha = 1;
-      ctx.setLineDash([]);
+      const angles = this.opts.singleHandle ? [f.handleAngle] : f.angles;
+      for (const a of angles) {
+        const hx = this.gammas[f.key] * Math.cos(a);
+        const hy = this.gammas[f.key] * Math.sin(a);
+        const X = cx + hx * s, Y = cy - hy * s;
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = f.color;
+        ctx.globalAlpha = dim ? 0.2 : 0.55;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X, Y); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.setLineDash([]);
 
-      ctx.globalAlpha = dim ? 0.3 : 1;
-      ctx.beginPath();
-      ctx.arc(X, Y, this.hover && this.hover.fam.key === f.key ? 9 : 7, 0, TAU);
-      ctx.fillStyle = present ? f.color : this.css('--card');
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = present ? '#fff' : muted;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+        ctx.globalAlpha = dim ? 0.3 : 1;
+        ctx.beginPath();
+        ctx.arc(X, Y, this.hover && this.hover.fam.key === f.key ? 9 : 7, 0, TAU);
+        ctx.fillStyle = present ? f.color : this.css('--card');
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = present ? '#fff' : muted;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
 
       if (this.opts.labels) {
+        const X = cx + this.gammas[f.key] * Math.cos(f.handleAngle) * s;
+        const Y = cy - this.gammas[f.key] * Math.sin(f.handleAngle) * s;
         ctx.globalAlpha = dim ? 0.3 : 1;
         ctx.font = 'bold 12px sans-serif';
         ctx.fillStyle = present ? f.color : muted;
@@ -453,6 +464,31 @@ export class Wulff2DApp {
     ctx.fillText(this.axisLabels[0], cx + maxR * 1.25 * s - 12, cy + 14);
     ctx.fillText(this.axisLabels[1], cx + 22, cy - maxR * 1.25 * s + 12);
     ctx.textAlign = 'left';
+
+    if (!this.opts.shapeVisible && !this.quiz) {
+      ctx.strokeStyle = this.css('--plot-blue');
+      ctx.globalAlpha = 0.3;
+      ctx.lineWidth = 1;
+      const N = this.opts.constructionDensity;
+      for (let i = 0; i < N; i++) {
+        const th = i / N * TAU;
+        const r = support2D(this.shape.verts, th);
+        const px = r * Math.cos(th), py = r * Math.sin(th);
+        const E = maxR * 1.25;
+        const tx = -Math.sin(th) * E, ty = Math.cos(th) * E;
+        ctx.beginPath();
+        ctx.moveTo(cx + (px + tx) * s, cy - (py + ty) * s);
+        ctx.lineTo(cx + (px - tx) * s, cy - (py - ty) * s);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = muted;
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('equilibrium shape hidden — enable it with the display toggle', w / 2, h - 12);
+      ctx.textAlign = 'left';
+      return;
+    }
 
     ctx.beginPath();
     this.shape.poly.forEach((v, i) => {
@@ -507,7 +543,7 @@ export class Wulff2DApp {
         ctx.fillText(fc.fam.label, lx, ly);
         ctx.font = '10px sans-serif';
         ctx.fillStyle = muted;
-        ctx.fillText(`γ = ${(fc.h / this.gammas[this.fams[0].key]).toFixed(2)}`, lx, ly + 12);
+        ctx.fillText(`γ = ${fc.h.toFixed(2)}`, lx, ly + 12);
         ctx.textAlign = 'left';
       }
     }

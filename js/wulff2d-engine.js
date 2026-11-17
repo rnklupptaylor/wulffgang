@@ -24,7 +24,7 @@ const pyrTilt = l => Math.acos((l / CA) / Math.sqrt(4 / 3 + (l / CA) ** 2));
 const PYR = Math.PI / 2 - pyrTilt(1);
 export const FAMILIES_HEX = [
   { key: 'gm', label: '{10-10}', color: '#e8890c', gamma: 1.0, handleAngle: 0,
-    angles: [0, Math.PI], min: 0.80, max: 1.70 },
+    angles: [0, Math.PI], min: 0.50, max: 3.20 },
   { key: 'gb', label: '{0001}', color: '#1971c2', gamma: 1.80, handleAngle: Math.PI / 2,
     angles: [Math.PI / 2, 3 * Math.PI / 2], min: 0.50, max: 3.20 },
   { key: 'gp', label: '{10-11}', color: '#0ca678', gamma: 1.25, handleAngle: PYR,
