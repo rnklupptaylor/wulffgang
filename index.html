@@ -90,7 +90,26 @@
         <label><input type="checkbox" id="t-construction" checked> construction planes</label>
         <label><input type="checkbox" id="t-missing" checked> mark missing orientations</label>
         <label><input type="checkbox" id="t-labels" checked> facet labels</label>
+        <label><input type="checkbox" id="t-gammafacets"> facet colours on γ-plot</label>
       </div>
+      <div class="slider-row">
+        <label>Construction lines</label>
+        <input type="range" id="r-construction" min="6" max="180" step="1" value="180">
+        <output id="vr-construction">180</output>
+      </div>
+      <details id="higher-2d">
+        <summary>Higher-index families {31}, {32}</summary>
+        <div class="slider-row">
+          <label><input type="checkbox" id="e-g31"> γ{31}</label>
+          <input type="range" id="s-g31" min="0.80" max="1.70" step="0.005" value="1.50" disabled>
+          <output id="v-g31">1.500</output>
+        </div>
+        <div class="slider-row">
+          <label><input type="checkbox" id="e-g32"> γ{32}</label>
+          <input type="range" id="s-g32" min="0.80" max="1.70" step="0.005" value="1.60" disabled>
+          <output id="v-g32">1.600</output>
+        </div>
+      </details>
     </div>
   </div>
 
@@ -103,6 +122,9 @@
       corner between the {10} and {11} facets at that moment?</li>
       <li>Raise γ{11} to 1.70. The shape becomes a square: the {11} planes now lie entirely outside the
       envelope, so the (110) orientation is a <em>missing orientation</em> — it appears only at the corners.</li>
+      <li>Open “Higher-index families {31}, {32}”, activate γ{31} and drag it low: {31} facets appear and
+      the shape gains more sides. Turn on “facet colours on γ-plot” to see which cusp each facet belongs to,
+      and reduce the construction-line density to trace the perpendiculars individually.</li>
     </ol>
   </div>
 
@@ -301,7 +323,26 @@
         <label><input type="checkbox" id="th-construction" checked> Wulff construction lines</label>
         <label><input type="checkbox" id="th-missing" checked> Missing orientations</label>
         <label><input type="checkbox" id="th-labels" checked> Labels</label>
+        <label><input type="checkbox" id="th-gammafacets"> Facet colours on γ-plot</label>
       </div>
+      <div class="slider-row">
+        <label>Construction lines</label>
+        <input type="range" id="rh-construction" min="6" max="180" step="1" value="180">
+        <output id="vrh-construction">180</output>
+      </div>
+      <details id="higher-hex">
+        <summary>Higher-index families {10-12}, {10-13}</summary>
+        <div class="slider-row">
+          <label><input type="checkbox" id="e-gp2"> γ{10-12}</label>
+          <input type="range" id="sh-gp2" min="0.50" max="3.20" step="0.005" value="1.50" disabled>
+          <output id="vh-gp2">1.500</output>
+        </div>
+        <div class="slider-row">
+          <label><input type="checkbox" id="e-gp3"> γ{10-13}</label>
+          <input type="range" id="sh-gp3" min="0.50" max="3.20" step="0.005" value="1.60" disabled>
+          <output id="vh-gp3">1.600</output>
+        </div>
+      </details>
     </div>
   </div>
 
@@ -318,6 +359,8 @@
     Wulff shape — they grow kinetically (e.g. screw-dislocation or VLS growth). Equilibrium shape
     and growth shape are different concepts — see the kinetic Wulff discussion in
     <a href="https://supers-app-turated.netlify.app/" target="_blank" rel="noopener">SupersAPPturated</a>.</p>
+    <p><strong>5.</strong> Activate γ{10-12} under “Higher-index families” and lower it: {10-12} pyramidal
+    facets bevel the rod ends — a habit frequently reported for real ZnO and GaN nanocrystals.</p>
   </div>
 
 </section>
@@ -427,7 +470,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.2</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.3</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>

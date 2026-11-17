@@ -36,6 +36,10 @@ and vice versa**, in both directions:
   2D section containing the c-axis of a wurtzite crystal with families {0001} (basal, polar),
   {10-10} (prism m-plane) and {10-11} (pyramidal, normal at 61.6° from the basal normal for
   ZnO's c/a = 1.60). With only {10-10} and {0001} present, L/D = γ{0001}/γ{10-10} exactly.
+* **Display options (2D tabs):** facet colours on the γ-plot (off by default), a construction-line
+  density slider (180 → 6 perpendiculars), and optional higher-index families — {31}, {32} in the
+  cubic section, {10-12}, {10-13} in the hexagonal section (their plane angles computed from
+  c/a = 1.60) — activatable per checkbox with their own γ sliders.
 * **Presets:** nearest-neighbour broken-bond values for the 2D square lattice
   (γ{11}/γ{10} = √2) and fcc (γ{100}/γ{111} = 2/√3 ≈ 1.155, γ{110}/γ{111} = 5/√24 ≈ 1.021 —
   which gives the 26-facet shape with {111}, {100} *and* {110}), plus rounded literature

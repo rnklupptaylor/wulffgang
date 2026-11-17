@@ -4,14 +4,18 @@ const TAU = Math.PI * 2;
 
 export class Wulff2DApp {
   constructor(gammaCanvas, shapeCanvas, onChange, fams = FAMILIES_2D,
-              axisLabels = ['[100]', '[010]']) {
+              axisLabels = ['[100]', '[010]'], extras = []) {
     this.gc = gammaCanvas;
     this.sc = shapeCanvas;
     this.onChange = onChange;
-    this.fams = fams;
+    this.baseFams = fams;
+    this.extraFams = extras;
+    this.allFams = [...fams, ...extras];
+    this.fams = fams.slice();
     this.axisLabels = axisLabels;
-    this.gammas = Object.fromEntries(fams.map(f => [f.key, f.gamma]));
-    this.opts = { construction: true, missing: true, labels: true };
+    this.gammas = Object.fromEntries(this.allFams.map(f => [f.key, f.gamma]));
+    this.opts = { construction: true, missing: true, labels: true,
+                  gammaFacets: false, constructionDensity: 180 };
     this.quiz = null;
     this.drag = null;
     this.hover = null;
@@ -43,6 +47,14 @@ export class Wulff2DApp {
     this.editFilter = key;
     this.hover = null;
     this.draw();
+  }
+
+  setActive(keys) {
+    this.fams = this.allFams.filter(f => keys.includes(f.key));
+    this.hover = null;
+    this.shape = wulffPolygon2D(this.gammas, this.fams);
+    this.draw();
+    if (this.onChange) this.onChange(this.gammas);
   }
 
   _editable(famKey) { return !this.editFilter || famKey === this.editFilter; }
@@ -239,8 +251,9 @@ export class Wulff2DApp {
       ctx.strokeStyle = this.css('--plot-blue');
       ctx.globalAlpha = 0.22;
       ctx.lineWidth = 1;
-      for (let i = 0; i < 180; i++) {
-        const th = i / 180 * TAU;
+      const N = this.opts.constructionDensity;
+      for (let i = 0; i < N; i++) {
+        const th = i / N * TAU;
         const r = support2D(this.shape.verts, th);
         const px = r * Math.cos(th), py = r * Math.sin(th);
         const L = 0.55 * r;
@@ -266,16 +279,18 @@ export class Wulff2DApp {
     ctx.strokeStyle = this.css('--plot-blue');
     ctx.lineWidth = 2.2;
     ctx.stroke();
-    for (const fc of this.shape.facets) {
-      if (fc.len < 1e-7) continue;
-      ctx.strokeStyle = fc.fam.color;
-      ctx.lineWidth = 3.5;
-      ctx.globalAlpha = this._editable(fc.fam.key) ? 1 : 0.25;
-      ctx.beginPath();
-      ctx.moveTo(cx + fc.a[0] * s, cy - fc.a[1] * s);
-      ctx.lineTo(cx + fc.b[0] * s, cy - fc.b[1] * s);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+    if (this.opts.gammaFacets) {
+      for (const fc of this.shape.facets) {
+        if (fc.len < 1e-7) continue;
+        ctx.strokeStyle = fc.fam.color;
+        ctx.lineWidth = 3.5;
+        ctx.globalAlpha = this._editable(fc.fam.key) ? 1 : 0.25;
+        ctx.beginPath();
+        ctx.moveTo(cx + fc.a[0] * s, cy - fc.a[1] * s);
+        ctx.lineTo(cx + fc.b[0] * s, cy - fc.b[1] * s);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
     }
 
     ctx.strokeStyle = this.css('--plot-red');

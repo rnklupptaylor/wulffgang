@@ -16,10 +16,12 @@ export const FAMILIES_2D = [
 
 /* Wurtzite/hcp crystal, 2D section containing the c-axis (the (11-20) section).
    c-axis vertical: {0001} basal normals vertical, {10-10} prism (m-plane) normals
-   horizontal, {10-11} pyramidal normals at 90° - 61.6° from horizontal
-   (61.6° = angle between (0001) and (10-11) planes for ZnO, c/a = 1.60).
+   horizontal, {10-11} pyramidal normals tilted by the interplanar angle
+   (0001)^^(10-1l), computed from c/a = 1.60 (ZnO).
    The {11-20} a-planes are perpendicular to this section and never appear as facets. */
-const PYR = 90 * DEG - 61.6 * DEG;
+const CA = 1.60;
+const pyrTilt = l => Math.acos((l / CA) / Math.sqrt(4 / 3 + (l / CA) ** 2));
+const PYR = Math.PI / 2 - pyrTilt(1);
 export const FAMILIES_HEX = [
   { key: 'gm', label: '{10-10}', color: '#e8890c', gamma: 1.0, handleAngle: 0,
     angles: [0, Math.PI], min: 0.80, max: 1.70 },
@@ -29,6 +31,24 @@ export const FAMILIES_HEX = [
     angles: [PYR, Math.PI - PYR, Math.PI + PYR, TAU - PYR], min: 0.50, max: 3.20 },
 ];
 FAMILIES_HEX.sym = Math.PI;
+
+/* Optional higher-index families (off until activated in the UI). */
+const eightAngles = a => [a, Math.PI / 2 - a, Math.PI / 2 + a, Math.PI - a,
+  Math.PI + a, 3 * Math.PI / 2 - a, 3 * Math.PI / 2 + a, TAU - a];
+export const FAMILIES_2D_EXTRAS = [
+  { key: 'g31', label: '{31}', color: '#9c36b5', gamma: 1.50, handleAngle: Math.atan(1 / 3),
+    angles: eightAngles(Math.atan(1 / 3)), min: 0.80, max: 1.70 },
+  { key: 'g32', label: '{32}', color: '#e03131', gamma: 1.60, handleAngle: Math.atan(2 / 3),
+    angles: eightAngles(Math.atan(2 / 3)), min: 0.80, max: 1.70 },
+];
+const PYR2 = Math.PI / 2 - pyrTilt(2);
+const PYR3 = Math.PI / 2 - pyrTilt(3);
+export const FAMILIES_HEX_EXTRAS = [
+  { key: 'gp2', label: '{10-12}', color: '#9c36b5', gamma: 1.50, handleAngle: PYR2,
+    angles: [PYR2, Math.PI - PYR2, Math.PI + PYR2, TAU - PYR2], min: 0.50, max: 3.20 },
+  { key: 'gp3', label: '{10-13}', color: '#e03131', gamma: 1.60, handleAngle: PYR3,
+    angles: [PYR3, Math.PI - PYR3, Math.PI + PYR3, TAU - PYR3], min: 0.50, max: 3.20 },
+];
 
 export function familyAngles2D(f) {
   return f.angles;

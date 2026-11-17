@@ -1,4 +1,4 @@
-import { FAMILIES_HEX } from './wulff2d-engine.js';
+import { FAMILIES_2D_EXTRAS, FAMILIES_HEX, FAMILIES_HEX_EXTRAS } from './wulff2d-engine.js';
 import { FAMILIES_3D } from './wulff3d-engine.js';
 import { Wulff2DApp } from './wulff2d-app.js';
 import { Wulff3DApp } from './wulff3d-app.js';
@@ -35,15 +35,21 @@ window.addEventListener('resize', () => {
 });
 
 /* ---------- 2D app ---------- */
-const app2d = new Wulff2DApp($('canvas-gamma'), $('canvas-shape'), sync2d);
+const app2d = new Wulff2DApp($('canvas-gamma'), $('canvas-shape'), sync2d,
+  FAMILIES_2D, ['[100]', '[010]'], FAMILIES_2D_EXTRAS);
 
 function sync2d() {
   const cl = x => Math.max(0.80, Math.min(1.70, x));
-  $('v-g21').textContent = (app2d.gammas.g21 / app2d.gammas.g10).toFixed(3);
-  $('v-g11').textContent = (app2d.gammas.g11 / app2d.gammas.g10).toFixed(3);
-  $('s-g21').value = cl(app2d.gammas.g21 / app2d.gammas.g10);
-  $('s-g11').value = cl(app2d.gammas.g11 / app2d.gammas.g10);
+  const ref = app2d.gammas.g10;
+  for (const f of app2d.allFams) {
+    if (f.key === app2d.baseFams[0].key) continue;
+    const ratio = app2d.gammas[f.key] / ref;
+    const v = $(`v-${f.key.slice(1)}`), s = $(`s-${f.key.slice(1)}`);
+    if (v) v.textContent = ratio.toFixed(3);
+    if (s && !s.disabled) s.value = cl(ratio);
+  }
   updateTable2d(app2d, 'table-2d', 'missing-note-2d');
+  refreshEditButtons();
 }
 
 function updateTable2d(app, tableId, noteId) {
@@ -65,28 +71,62 @@ function updateTable2d(app, tableId, noteId) {
     : 'All facet families are present on the shape.';
 }
 
-for (const [id, key] of [['s-g21', 'g21'], ['s-g11', 'g11']]) {
-  $(id).addEventListener('input', e =>
-    app2d.setGammas({ [key]: parseFloat(e.target.value) * app2d.gammas.g10 }));
+for (const f of app2d.allFams) {
+  if (f.key === app2d.baseFams[0].key) continue;
+  const sl = $(`s-${f.key.slice(1)}`);
+  if (sl) sl.addEventListener('input', e =>
+    app2d.setGammas({ [f.key]: parseFloat(e.target.value) * app2d.gammas.g10 }));
 }
 $('t-construction').addEventListener('change', e => app2d.setOptions({ construction: e.target.checked }));
 $('t-missing').addEventListener('change', e => app2d.setOptions({ missing: e.target.checked }));
 $('t-labels').addEventListener('change', e => app2d.setOptions({ labels: e.target.checked }));
+$('t-gammafacets').addEventListener('change', e => app2d.setOptions({ gammaFacets: e.target.checked }));
+$('r-construction').addEventListener('input', e => {
+  $('vr-construction').textContent = e.target.value;
+  app2d.setOptions({ constructionDensity: parseInt(e.target.value) });
+});
 
+function wireExtras(app, sliderPrefix) {
+  const refKey = app.baseFams[0].key;
+  for (const f of app.extraFams) {
+    const cb = $(`e-${f.key}`);
+    const sl = $(`${sliderPrefix}-${f.key}`);
+    cb.addEventListener('change', () => {
+      sl.disabled = !cb.checked;
+      const keys = app.baseFams.map(x => x.key);
+      for (const g of app.extraFams) if ($(`e-${g.key}`).checked) keys.push(g.key);
+      app.setActive(keys);
+    });
+    sl.addEventListener('input', e =>
+      app.setGammas({ [f.key]: parseFloat(e.target.value) * app.gammas[refKey] }));
+  }
+}
+wireExtras(app2d, 's');
+
+const editRefreshers = [];
+function refreshEditButtons() { for (const r of editRefreshers) r(); }
 function makeEditButtons(containerId, app) {
   const cont = $(containerId);
+  const buttons = [];
   const mk = (label, key) => {
     const b = document.createElement('button');
     b.textContent = label;
     b.addEventListener('click', () => {
       app.setEditFilter(key);
-      cont.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+      refreshEditButtons();
     });
     cont.appendChild(b);
-    return b;
+    buttons.push([key, b]);
   };
-  mk('All', null).classList.add('active');
-  for (const f of app.fams) mk('Edit ' + f.label, f.key);
+  mk('All', null);
+  for (const f of app.allFams) mk('Edit ' + f.label, f.key);
+  editRefreshers.push(() => {
+    for (const [key, b] of buttons) {
+      if (key !== null) b.disabled = !app.fams.some(f => f.key === key);
+      b.classList.toggle('active', (app.editFilter ?? null) === key);
+    }
+  });
+  refreshEditButtons();
 }
 makeEditButtons('edit-2d', app2d);
 
@@ -113,18 +153,23 @@ for (const p of PRESETS_2D) {
 
 /* ---------- hexagonal (anisotropic) 2D app ---------- */
 const appHex = new Wulff2DApp($('canvas-hexgamma'), $('canvas-hexshape'), syncHex,
-  FAMILIES_HEX, ['[1-100]', '[0001]']);
+  FAMILIES_HEX, ['[1-100]', '[0001]'], FAMILIES_HEX_EXTRAS);
 
 function syncHex() {
   const cl = x => Math.max(0.50, Math.min(3.20, x));
-  $('vh-gb').textContent = (appHex.gammas.gb / appHex.gammas.gm).toFixed(3);
-  $('vh-gp').textContent = (appHex.gammas.gp / appHex.gammas.gm).toFixed(3);
-  $('sh-gb').value = cl(appHex.gammas.gb / appHex.gammas.gm);
-  $('sh-gp').value = cl(appHex.gammas.gp / appHex.gammas.gm);
+  const ref = appHex.gammas.gm;
+  for (const f of appHex.allFams) {
+    if (f.key === appHex.baseFams[0].key) continue;
+    const ratio = appHex.gammas[f.key] / ref;
+    const v = $(`vh-${f.key}`), s = $(`sh-${f.key}`);
+    if (v) v.textContent = ratio.toFixed(3);
+    if (s && !s.disabled) s.value = cl(ratio);
+  }
   const xs = appHex.shape.poly.map(v => v[0]), ys = appHex.shape.poly.map(v => v[1]);
   const L = Math.max(...ys) - Math.min(...ys), D = Math.max(...xs) - Math.min(...xs);
   $('aspect-hex').textContent = (L / D).toFixed(2);
   updateTable2d(appHex, 'table-hex', 'missing-note-hex');
+  refreshEditButtons();
 }
 
 for (const [id, key] of [['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
@@ -134,6 +179,12 @@ for (const [id, key] of [['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
 $('th-construction').addEventListener('change', e => appHex.setOptions({ construction: e.target.checked }));
 $('th-missing').addEventListener('change', e => appHex.setOptions({ missing: e.target.checked }));
 $('th-labels').addEventListener('change', e => appHex.setOptions({ labels: e.target.checked }));
+$('th-gammafacets').addEventListener('change', e => appHex.setOptions({ gammaFacets: e.target.checked }));
+$('rh-construction').addEventListener('input', e => {
+  $('vrh-construction').textContent = e.target.value;
+  appHex.setOptions({ constructionDensity: parseInt(e.target.value) });
+});
+wireExtras(appHex, 'sh');
 makeEditButtons('edit-hex', appHex);
 
 const PRESETS_HEX = [
