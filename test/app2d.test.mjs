@@ -89,4 +89,19 @@ if (!hitRep2 || hitRep2.fam.key !== 'g10') { console.error('FAIL: representative
 console.log('ok singleHandle mode restricts hit-testing to the representative');
 app5.setOptions({ singleHandle: false });
 
+// Burn-in of construction lines
+app5.inspect = { th: 0.3 };
+if (!app5.burnLine()) { console.error('FAIL: burnLine should record with inspection present'); process.exit(1); }
+app5.burnLine();
+if (app5.burnt.length !== 1) { console.error('FAIL: duplicate burn at same angle should be deduped'); process.exit(1); }
+app5.inspect.th = 0.9;
+app5.burnLine();
+if (app5.burnt.length !== 2) { console.error('FAIL: second line should be recorded'); process.exit(1); }
+console.log('ok burn-in records and dedupes construction lines');
+app5.inspect = null;
+if (app5.burnLine()) { console.error('FAIL: burnLine must fail without inspection point'); process.exit(1); }
+app5.clearBurnt();
+if (app5.burnt.length !== 0) { console.error('FAIL: clearBurnt should empty the list'); process.exit(1); }
+console.log('ok burn-in cleared, no-op without inspection point');
+
 console.log('APP2D TESTS PASSED');

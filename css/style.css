@@ -65,11 +65,11 @@ a { color: var(--accent); }
 .header-title .gamma::before {
   content: '';
   position: absolute;
-  top: -0.16em;
+  top: -0.07em;
   left: 50%;
   transform: translateX(-50%);
-  width: 0.6em;
-  height: 0.32em;
+  width: 0.46em;
+  height: 0.22em;
   border: 2px dotted #ffd43b;
   border-bottom: none;
   border-radius: 1em 1em 0 0;

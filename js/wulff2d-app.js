@@ -21,6 +21,7 @@ export class Wulff2DApp {
     this.drag = null;
     this.hover = null;
     this.inspect = null;
+    this.burnt = [];
     this.editFilter = null;
 
     const targets = gammaCanvas === shapeCanvas
@@ -132,14 +133,36 @@ export class Wulff2DApp {
   _up() { this.drag = null; }
 
   _key(e) {
-    if (!this.inspect || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    if (!this.inspect) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== ' ') return;
     if (this.gc.clientWidth === 0 && this.sc.clientWidth === 0) return;
     const ae = document.activeElement;
-    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) return;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.tagName === 'BUTTON')) return;
+    if (e.key === ' ') { this.burnLine(); e.preventDefault(); return; }
     const step = (e.shiftKey ? 10 : 1) * Math.PI / 180;
     this.inspect.th = (this.inspect.th + (e.key === 'ArrowRight' ? -step : step) + TAU) % TAU;
     this.draw();
     e.preventDefault();
+  }
+
+  _angDist(a, b) {
+    const d = Math.abs(((a - b) % TAU + TAU) % TAU);
+    return Math.min(d, TAU - d);
+  }
+
+  burnLine() {
+    if (!this.inspect) return false;
+    const th = this.inspect.th;
+    if (!this.burnt.some(b => this._angDist(b, th) < 1e-6)) this.burnt.push(th);
+    this.draw();
+    if (this.onChange) this.onChange(this.gammas);
+    return true;
+  }
+
+  clearBurnt() {
+    this.burnt = [];
+    this.draw();
+    if (this.onChange) this.onChange(this.gammas);
   }
 
   _inspectClick(p) {
@@ -148,12 +171,18 @@ export class Wulff2DApp {
     if (this.inspect) {
       const r = support2D(this.shape.verts, this.inspect.th);
       const [sx, sy] = this.g2s(this.gc, r * Math.cos(this.inspect.th), r * Math.sin(this.inspect.th));
-      if (Math.hypot(p[0] - sx, p[1] - sy) < 14) { this.inspect = null; this.draw(); return; }
+      if (Math.hypot(p[0] - sx, p[1] - sy) < 14) {
+        this.inspect = null;
+        this.draw();
+        if (this.onChange) this.onChange(this.gammas);
+        return;
+      }
     }
     const th = this._hitCurve(p);
     if (th === null) return;
     this.inspect = { th };
     this.draw();
+    if (this.onChange) this.onChange(this.gammas);
   }
 
   _hitCurve(p) {
@@ -352,6 +381,23 @@ export class Wulff2DApp {
       i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
     }
     ctx.stroke();
+
+    for (const bth of this.burnt) {
+      const r = support2D(this.shape.verts, bth);
+      const px = r * Math.cos(bth), py = r * Math.sin(bth);
+      const E = maxR * 1.3;
+      const tx = -Math.sin(bth) * E, ty = Math.cos(bth) * E;
+      ctx.strokeStyle = this.css('--plot-blue');
+      ctx.globalAlpha = 0.5;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(cx + (px + tx) * s, cy - (py + ty) * s);
+      ctx.lineTo(cx + (px - tx) * s, cy - (py - ty) * s);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(cx + px * s, cy - py * s, 3, 0, TAU);
+      ctx.fillStyle = this.css('--plot-blue'); ctx.fill();
+    }
 
     if (this.inspect) {
       const th = this.inspect.th;

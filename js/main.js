@@ -55,6 +55,8 @@ function sync2d() {
   }
   updateTable2d(app2d, 'table-2d', 'missing-note-2d');
   refreshEditButtons();
+  $('record-2d').disabled = !app2d.inspect;
+  $('clear-2d').style.display = app2d.burnt.length ? '' : 'none';
 }
 
 function updateTable2d(app, tableId, noteId) {
@@ -100,6 +102,8 @@ $('r-construction').addEventListener('input', e => {
   $('vr-construction').textContent = e.target.value;
   app2d.setOptions({ constructionDensity: parseInt(e.target.value) });
 });
+$('record-2d').addEventListener('click', () => app2d.burnLine());
+$('clear-2d').addEventListener('click', () => app2d.clearBurnt());
 
 function wireExtras(app, sliderPrefix) {
   for (const f of app.extraFams) {
@@ -189,6 +193,8 @@ function syncHex() {
   $('aspect-hex').textContent = (L / D).toFixed(2);
   updateTable2d(appHex, 'table-hex', 'missing-note-hex');
   refreshEditButtons();
+  $('record-hex').disabled = !appHex.inspect;
+  $('clear-hex').style.display = appHex.burnt.length ? '' : 'none';
 }
 
 for (const [id, key] of [['sh-gm', 'gm'], ['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
@@ -205,6 +211,8 @@ $('rh-construction').addEventListener('input', e => {
   $('vrh-construction').textContent = e.target.value;
   appHex.setOptions({ constructionDensity: parseInt(e.target.value) });
 });
+$('record-hex').addEventListener('click', () => appHex.burnLine());
+$('clear-hex').addEventListener('click', () => appHex.clearBurnt());
 wireExtras(appHex, 'sh');
 makeEditButtons('edit-hex', appHex);
 wireReveal('reveal-hex', appHex);

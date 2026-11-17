@@ -38,7 +38,13 @@
   <div class="ws-grid ws-3col">
 
     <div class="card canvas-card">
-      <h2>① The γ-plot and the Wulff construction</h2>
+      <div class="card-head">
+        <h2>① The γ-plot and the Wulff construction</h2>
+        <div class="btn-row">
+          <button id="record-2d" title="Burn in the construction line at the inspection point (space bar)">Record line</button>
+          <button id="clear-2d" style="display:none">Clear construction lines</button>
+        </div>
+      </div>
       <div class="canvas-wrap"><canvas id="canvas-gamma"></canvas></div>
       <p class="caption"><strong>Red:</strong> γ(θ), the γ-plot (cusps at the facet orientations).
       <strong>Thin blue lines:</strong> planes perpendicular to the radius vector at distance h = γ.
@@ -46,7 +52,9 @@
       handles — one on every symmetry-equivalent plane of each family — to change γ, or
       <strong>click the red curve</strong> to inspect one construction plane (radius vector +
       perpendicular); click the marked point again to remove it, or step it along the curve with the
-      <strong>←/→ arrow keys</strong> (Shift: 10° steps).</p>
+      <strong>←/→ arrow keys</strong> (Shift: 10° steps). <strong>Space</strong> (or “Record line”)
+      burns the inspected construction line in — step on and record line after line; recorded lines
+      follow the construction as γ changes.</p>
     </div>
 
     <div class="card canvas-card">
@@ -305,11 +313,18 @@
   <div class="ws-grid ws-3col">
 
     <div class="card canvas-card">
-      <h2>γ-plot and Wulff shape (c-axis section)</h2>
+      <div class="card-head">
+        <h2>γ-plot and Wulff shape (c-axis section)</h2>
+        <div class="btn-row">
+          <button id="record-hex" title="Burn in the construction line at the inspection point (space bar)">Record line</button>
+          <button id="clear-hex" style="display:none">Clear construction lines</button>
+        </div>
+      </div>
       <div class="canvas-wrap"><canvas id="canvas-hexgamma"></canvas></div>
       <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.
       Click the red curve to inspect one construction plane (radius vector + perpendicular);
-      ←/→ arrow keys step the inspection point along the curve (Shift: 10°).</p>
+      ←/→ arrow keys step the inspection point along the curve (Shift: 10°); space or “Record line”
+      burns the line in for later comparison.</p>
     </div>
 
     <div class="card canvas-card">
@@ -518,7 +533,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.8</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.9</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>
