@@ -1,4 +1,4 @@
-import { FAMILIES_2D_EXTRAS, FAMILIES_HEX, FAMILIES_HEX_EXTRAS } from './wulff2d-engine.js';
+import { FAMILIES_2D, FAMILIES_2D_EXTRAS, FAMILIES_HEX, FAMILIES_HEX_EXTRAS } from './wulff2d-engine.js';
 import { FAMILIES_3D } from './wulff3d-engine.js';
 import { Wulff2DApp } from './wulff2d-app.js';
 import { Wulff3DApp } from './wulff3d-app.js';
@@ -44,7 +44,7 @@ function sync2d() {
   for (const f of app2d.allFams) {
     if (f.key === app2d.baseFams[0].key) continue;
     const ratio = app2d.gammas[f.key] / ref;
-    const v = $(`v-${f.key.slice(1)}`), s = $(`s-${f.key.slice(1)}`);
+    const v = $(`v-${f.key}`), s = $(`s-${f.key}`);
     if (v) v.textContent = ratio.toFixed(3);
     if (s && !s.disabled) s.value = cl(ratio);
   }
@@ -71,9 +71,9 @@ function updateTable2d(app, tableId, noteId) {
     : 'All facet families are present on the shape.';
 }
 
-for (const f of app2d.allFams) {
+for (const f of app2d.baseFams) {
   if (f.key === app2d.baseFams[0].key) continue;
-  const sl = $(`s-${f.key.slice(1)}`);
+  const sl = $(`s-${f.key}`);
   if (sl) sl.addEventListener('input', e =>
     app2d.setGammas({ [f.key]: parseFloat(e.target.value) * app2d.gammas.g10 }));
 }
