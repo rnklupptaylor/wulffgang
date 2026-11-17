@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wulffgang — equilibrium crystal shapes from surface energies</title>
+<meta name="description" content="Interactive Wulff construction: convert surface energies of crystal planes into the equilibrium crystal shape, and back again. Companion app for the lecture Introduction to Interface Engineering (FAU Erlangen-Nürnberg).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,3 26,10 26,22 16,29 6,22 6,10' fill='%231971c2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>Wulff<span class="gamma">γ</span>ang</h1>
+      <p class="subtitle">Equilibrium crystal shapes from surface energies — and back again</p>
+      <p class="byline">Unit: Nucleation &amp; Growth · Wulff construction · <em>Introduction to Interface Engineering</em> (FAU Erlangen-Nürnberg)</p>
+    </div>
+    <button id="themeToggle" class="icon-btn" title="Toggle dark mode (good for projectors)">☾</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="tab-2d">1 · γ-plot → shape (2D)</button>
+  <button class="tab" data-tab="tab-3d">2 · Crystal shape (3D)</button>
+  <button class="tab" data-tab="tab-quiz">3 · Mystery crystal</button>
+  <button class="tab" data-tab="tab-theory">4 · How it works</button>
+</nav>
+
+<main>
+
+<!-- ==================== TAB 1: 2D ==================== -->
+<section id="tab-2d" class="tab-panel active">
+
+  <div class="canvas-grid">
+    <div class="card">
+      <h2>① The γ-plot and the Wulff construction</h2>
+      <div class="canvas-wrap"><canvas id="canvas-gamma"></canvas></div>
+      <p class="caption"><strong>Red:</strong> surface energy γ(θ) as a function of surface orientation
+      (the γ-plot, with cusps at the facet orientations). <strong>Thin blue lines:</strong> planes drawn
+      perpendicular to the radius vector at every point of the γ-plot, at distance h = γ.
+      <strong>Blue:</strong> their inner envelope — the equilibrium shape. Drag the coloured handles to change γ.</p>
+    </div>
+    <div class="card">
+      <h2>② The equilibrium shape (drag the facets!)</h2>
+      <div class="canvas-wrap"><canvas id="canvas-shape"></canvas></div>
+      <p class="caption">The crystal that grows slowly at equilibrium. Each facet sits at distance
+      h = λγ from the centre (Wulff theorem). <strong>Drag a facet in or out</strong> and watch the γ-plot
+      follow — this is the reverse direction: shape → surface energies.</p>
+    </div>
+  </div>
+
+  <div class="controls-grid">
+    <div class="card">
+      <h3>Surface energies</h3>
+      <p class="note">Rounded teaching values for a crystal with four-fold symmetry. Only <em>ratios</em> matter,
+      so γ{10} is the reference. All values are editable.</p>
+      <div class="slider-row">
+        <label>γ{10} <small>(reference)</small></label>
+        <input type="range" min="1" max="1" step="0.001" value="1" disabled>
+        <output>1.000</output>
+      </div>
+      <div class="slider-row">
+        <label>γ{21}</label>
+        <input type="range" id="s-g21" min="0.80" max="1.70" step="0.005" value="1.28">
+        <output id="v-g21">1.280</output>
+      </div>
+      <div class="slider-row">
+        <label>γ{11}</label>
+        <input type="range" id="s-g11" min="0.80" max="1.70" step="0.005" value="1.414">
+        <output id="v-g11">1.414</output>
+      </div>
+      <h3>Teaching presets</h3>
+      <div class="btn-row" id="presets-2d"></div>
+    </div>
+
+    <div class="card">
+      <h3>Readout</h3>
+      <table class="readout" id="table-2d">
+        <thead><tr><th>Facet</th><th>γ (rel.)</th><th>on shape?</th><th>share of perimeter</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="note" id="missing-note-2d"></p>
+      <div class="toggles">
+        <label><input type="checkbox" id="t-construction" checked> construction planes</label>
+        <label><input type="checkbox" id="t-missing" checked> mark missing orientations</label>
+        <label><input type="checkbox" id="t-labels" checked> facet labels</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card trythis">
+    <h3>Try this</h3>
+    <ol>
+      <li>Set γ{11} = √2 ≈ 1.414 — the nearest-neighbour broken-bond value for a simple square lattice.
+      Which facets survive, and why are the corners exactly at 45°?</li>
+      <li>Lower γ{21} step by step from 1.28. At what value do {21} facets appear, and what happens to the
+      corner between the {10} and {11} facets at that moment?</li>
+      <li>Raise γ{11} to 1.70. The shape becomes a square: the {11} planes now lie entirely outside the
+      envelope, so the (110) orientation is a <em>missing orientation</em> — it appears only at the corners.</li>
+    </ol>
+  </div>
+
+</section>
+
+<!-- ==================== TAB 2: 3D ==================== -->
+<section id="tab-3d" class="tab-panel">
+
+  <div class="grid-3d">
+    <div class="card">
+      <h2>The Wulff polyhedron</h2>
+      <div class="canvas-wrap tall"><canvas id="canvas-3d"></canvas></div>
+      <p class="caption">Drag to rotate · scroll to zoom · hover over a facet for details.
+      Built as the exact intersection of the half-spaces n·r ≤ γ{n} for every plane of every enabled family.</p>
+    </div>
+
+    <div class="sidebar">
+      <div class="card">
+        <h3>Surface energies (γ{111} = 1.000)</h3>
+        <p class="note">Rounded teaching values. γ{111} is the reference — for fcc metals it is the
+        lowest-energy, close-packed facet.</p>
+        <div class="slider-row">
+          <label>γ{100}</label>
+          <input type="range" id="s3-g100" min="0.55" max="1.80" step="0.005" value="1.155">
+          <output id="v3-g100">1.155</output>
+        </div>
+        <div class="slider-row">
+          <label>γ{110}</label>
+          <input type="range" id="s3-g110" min="0.55" max="1.80" step="0.005" value="1.021">
+          <output id="v3-g110">1.021</output>
+        </div>
+        <details id="higher-families">
+          <summary>Higher-index families {210}, {211}, {311}</summary>
+          <div class="slider-row">
+            <label><input type="checkbox" id="e3-g210"> γ{210}</label>
+            <input type="range" id="s3-g210" min="0.90" max="1.60" step="0.005" value="1.15" disabled>
+            <output id="v3-g210">1.150</output>
+          </div>
+          <div class="slider-row">
+            <label><input type="checkbox" id="e3-g211"> γ{211}</label>
+            <input type="range" id="s3-g211" min="0.90" max="1.60" step="0.005" value="1.12" disabled>
+            <output id="v3-g211">1.120</output>
+          </div>
+          <div class="slider-row">
+            <label><input type="checkbox" id="e3-g311"> γ{311}</label>
+            <input type="range" id="s3-g311" min="0.90" max="1.60" step="0.005" value="1.10" disabled>
+            <output id="v3-g311">1.100</output>
+          </div>
+        </details>
+        <h3>Teaching presets</h3>
+        <div class="btn-row" id="presets-3d"></div>
+        <h3>View</h3>
+        <div class="toggles">
+          <label><input type="checkbox" id="t3-rotate" checked> slow rotation</label>
+          <label><input type="checkbox" id="t3-distances"> Wulff distances h = γ</label>
+          <label><input type="checkbox" id="t3-edges" checked> facet edges</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Facets present</h3>
+        <table class="readout" id="table-3d">
+          <thead><tr><th>Family</th><th>γ (rel.)</th><th>facets</th><th>area share</th><th>appears if γ ≤</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="note" id="hint-3d"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card trythis">
+    <h3>Try this</h3>
+    <ol>
+      <li>Load <strong>Broken-bond fcc</strong>. With only nearest-neighbour bonds broken, γ{100}/γ{111} = 2/√3 ≈ 1.155
+      and γ{110}/γ{111} = 5/√24 ≈ 1.021 — and the shape has 26 facets: eight {111}, six {100} and twelve {110}.</li>
+      <li>Load <strong>Au (gold)</strong>. Relativistic effects and d-band filling make γ{110} relatively more expensive,
+      so the {110} facets vanish: only {111} and {100} remain — the classic truncated octahedron seen in TEM.</li>
+      <li>Raise γ{100} towards √3 ≈ 1.732 and watch the {100} facets shrink into the corners of the octahedron.
+      Beyond √3 the octahedron is bare: the {100} orientation is missing.</li>
+      <li>Enable {311} and lower its γ below the value shown in “appears if γ ≤”. High-index facets can appear —
+      this is why real nanoparticles sometimes show unexpected facets.</li>
+    </ol>
+  </div>
+
+</section>
+
+<!-- ==================== TAB 3: QUIZ ==================== -->
+<section id="tab-quiz" class="tab-panel">
+
+  <div class="quiz-intro card">
+    <h2>Mystery crystal: shape → surface energies</h2>
+    <p>The app has drawn an equilibrium crystal from <em>hidden</em> surface energies (dashed target).
+    Recover them: drag your facets (solid colours) until your shape matches the target, or adjust the sliders.
+    The match score updates live — at 100 % you have read off the energy ratios exactly as an experimentalist
+    would from a TEM image.</p>
+  </div>
+
+  <div class="canvas-grid">
+    <div class="card">
+      <h2>Your crystal</h2>
+      <div class="canvas-wrap"><canvas id="canvas-quiz"></canvas></div>
+      <p class="caption">Solid colour: your shape (draggable). Dashed outline: the mystery target.</p>
+    </div>
+    <div class="card quiz-side">
+      <div class="matchbox">
+        <h3>Match</h3>
+        <div class="matchbar"><div id="quiz-matchbar"></div></div>
+        <p id="quiz-status" class="bigstatus">—</p>
+      </div>
+      <div class="slider-row">
+        <label>γ{21}</label>
+        <input type="range" id="sq-g21" min="0.80" max="1.70" step="0.005" value="1.28">
+        <output id="vq-g21">1.280</output>
+      </div>
+      <div class="slider-row">
+        <label>γ{11}</label>
+        <input type="range" id="sq-g11" min="0.80" max="1.70" step="0.005" value="1.414">
+        <output id="vq-g11">1.414</output>
+      </div>
+      <div class="btn-row">
+        <button id="quiz-new" class="primary">New mystery crystal</button>
+        <button id="quiz-reveal">Show answer</button>
+      </div>
+      <p class="note" id="quiz-answer"></p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ==================== TAB 4: THEORY ==================== -->
+<section id="tab-theory" class="tab-panel">
+
+  <div class="card theory">
+    <h2>Why crystals have facets: the Wulff construction</h2>
+
+    <h3>Gibbs (1878): minimise the surface energy</h3>
+    <p>For a crystal of fixed volume in its vapour or solution, the equilibrium shape minimises the total
+    surface free energy Σ<sub>j</sub> γ<sub>j</sub>O<sub>j</sub>, where γ<sub>j</sub> is the surface energy of face <em>j</em>
+    and O<sub>j</sub> its area. Different crystal planes have different surface energies — close-packed planes
+    break the fewest bonds per area and are cheapest — so the crystal cannot simply be a sphere.</p>
+
+    <h3>Wulff (1901): h = λγ</h3>
+    <p>Wulff stated (and Laue 1943, Dinghas 1943 and Herring 1951 later proved) the geometric rule: in the
+    equilibrium shape, the distance h<sub>j</sub> from the crystal centre to face <em>j</em>, measured perpendicular
+    to the face, is proportional to its surface energy:</p>
+    <p class="equation">h<sub>j</sub> = λ · γ<sub>j</sub></p>
+    <p>Only <em>ratios</em> of surface energies are geometrically meaningful; the scale factor λ is set by the crystal
+    size. That is why one γ in this app is always fixed as the reference.</p>
+
+    <h3>The construction (Herring's recipe)</h3>
+    <ol>
+      <li>Plot γ as a function of the surface normal direction <strong>n̂</strong>: the <em>γ-plot</em> (red curve in tab 1).</li>
+      <li>At every point of the γ-plot, draw the plane perpendicular to the radius vector, at distance γ(n̂) from the origin.</li>
+      <li>The inner envelope of all these planes is the equilibrium crystal shape.</li>
+    </ol>
+
+    <h3>Cusps make facets; everything between them is missing</h3>
+    <p>γ(n̂) has sharp <em>cusps</em> (minima) at the low-index orientations, because a vicinal surface there costs
+    extra step energy. At a cusp the perpendicular plane cuts into the envelope and survives as a
+    <strong>facet</strong>. Orientations between cusps are <em>missing</em>: their planes lie outside the envelope and the
+    corresponding surface appears only at edges and corners. In this app the γ-plot between cusps is drawn as the
+    exact support function of the resulting polyhedron — the marginal case, in which inter-cusp orientations touch
+    only at corners. Real crystals have γ + γ″ &gt; 0 between cusps (step–step interactions), which rounds the corners
+    slightly, but the facets and their relative sizes are as constructed here.</p>
+
+    <h3>3D shapes from ratios</h3>
+    <p>In tab 2 the polyhedron is computed exactly as the intersection of the half-spaces
+    n·r ≤ γ{n} of all enabled plane families. A family contributes facets only if its planes are close enough to
+    the centre; the app reports the critical ratio numerically. Two useful exact results for a crystal bounded by
+    {111} and {100} alone: the {100} facets disappear when γ{100} &gt; √3 · γ{111} ≈ 1.732 (pure octahedron),
+    and the {111} facets disappear when γ{111} &gt; √3 · γ{100} (pure cube).</p>
+
+    <h3>Equilibrium growth vs. fast growth</h3>
+    <p>The Wulff shape is the <em>equilibrium</em> shape: it is reached when atoms can rearrange on the surface,
+    i.e. slow growth or long annealing. Under fast growth the shape is instead governed by orientation-dependent
+    growth velocities — the <em>kinetic Wulff construction</em> — and can look completely different (needles, dendrites).
+    In the <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> app the growing precipitates were
+    drawn as spheres; here you can see what equilibrium adds: facets.</p>
+
+    <h3>Simplifications (explicit limits of this teaching model)</h3>
+    <ul>
+      <li>Sharp facets only — no rounded corners (γ + γ″ &gt; 0 regions are neglected).</li>
+      <li>Zero temperature: no entropy-driven surface roughening, which in reality softens cusps.</li>
+      <li>No adsorbates, solvent, strain or twin boundaries — all of these change γ and hence the shape
+      (this is how shape-control with surfactants or CO works in nanocrystal synthesis).</li>
+      <li>Four-fold symmetry in 2D; cubic symmetry in 3D. Metal γ-ratios are rounded literature values
+      (relativistic DFT and experiments, e.g. Vitos et al. 1998; Tran et al. 2016) and are meant as
+      teaching estimates — edit them.</li>
+    </ul>
+
+    <h3>Wie das Modell funktioniert (für Neugierige)</h3>
+    <p>Die Gleichgewichtsform eines Kristalls minimiert die gesamte Oberflächenenergie Σ γ<sub>j</sub>O<sub>j</sub> (Gibbs).
+    Der Satz von Wulff sagt: Der Abstand h<sub>j</sub> einer Facette vom Kristallzentrum ist proportional zu ihrer
+    Oberflächenenergie, h<sub>j</sub> = λγ<sub>j</sub>. Die Konstruktion: γ(n̂) polar auftragen (das γ-Diagramm), in jeder
+    Richtung die senkrechte Ebene im Abstand γ errichten, und deren innere Hüllfläche bilden — das ist die
+    Gleichgewichtsform. Kerben (Cusps) in γ(n̂) an den Niederindex-Orientierungen werden zu Facetten; die
+    Orientierungen dazwischen fehlen und erscheinen nur an Kanten und Ecken. In Tab 2 wird das Polyeder exakt als
+    Durchschnitt aller Halbräume n·r ≤ γ{n} berechnet; die App zeigt numerisch, bei welchem γ-Verhältnis eine
+    Facettenfamilie verschwindet. Es gelten nur <em>Verhältnisse</em> der γ-Werte (λ ist die Größenskala), deshalb ist
+    jeweils eine Energie als Referenz festgelegt. Die Wulff-Form gilt für Gleichgewicht bzw. langsames Wachstum;
+    schnelles Wachstum folgt der kinetischen Wulff-Konstruktion (Geschwindigkeiten statt Energien) und liefert
+    Nadeln und Dendriten.</p>
+
+    <h3>References</h3>
+    <ul class="refs">
+      <li>J. W. Gibbs, <em>On the Equilibrium of Heterogeneous Substances</em> (1878).</li>
+      <li>G. Wulff, "Zur Frage der Geschwindigkeit des Wachstums und der Auflösung der Krystallflächen",
+      Z. Kristallogr. <strong>34</strong>, 449 (1901).</li>
+      <li>C. Herring, "Some Theorems on the Free Energies of Crystal Surfaces", Phys. Rev. <strong>82</strong>, 87 (1951);
+      and in <em>Structure and Properties of Solid Surfaces</em> (1953).</li>
+      <li>L. Vitos, A. V. Ruban, H. L. Skriver, J. Kollár, "The surface energy of metals", Surf. Sci. <strong>411</strong>, 186 (1998).</li>
+      <li>R. Tran, Z. Xu, B. Radhakrishnan et al., "Surface energies of elemental crystals", Sci. Data <strong>3</strong>, 160080 (2016).</li>
+    </ul>
+  </div>
+
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <p><strong>Wulffγang v1.0</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
+  and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
