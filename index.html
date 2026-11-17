@@ -37,14 +37,14 @@
   <div class="ws-grid ws-3col">
 
     <div class="card canvas-card">
-      <div class="card-head">
-        <h2>① The γ-plot and the Wulff construction</h2>
-        <div class="btn-row">
+      <h2>① The γ-plot and the Wulff construction</h2>
+      <div class="canvas-wrap">
+        <canvas id="canvas-gamma"></canvas>
+        <div class="canvas-overlay">
           <button id="record-2d" title="Burn in the construction line at the inspection point (space bar)">Record line</button>
-          <button id="clear-2d" style="display:none">Clear construction lines</button>
+          <button id="clear-2d" style="visibility:hidden">Clear construction lines</button>
         </div>
       </div>
-      <div class="canvas-wrap"><canvas id="canvas-gamma"></canvas></div>
       <p class="caption"><strong>Red:</strong> γ(θ), the γ-plot (cusps at the facet orientations).
       <strong>Thin blue lines:</strong> planes perpendicular to the radius vector at distance h = γ.
       <strong>Blue:</strong> their inner envelope — the equilibrium shape (toggleable). Drag the coloured
@@ -312,14 +312,14 @@
   <div class="ws-grid ws-3col">
 
     <div class="card canvas-card">
-      <div class="card-head">
-        <h2>γ-plot and Wulff shape (c-axis section)</h2>
-        <div class="btn-row">
+      <h2>γ-plot and Wulff shape (c-axis section)</h2>
+      <div class="canvas-wrap">
+        <canvas id="canvas-hexgamma"></canvas>
+        <div class="canvas-overlay">
           <button id="record-hex" title="Burn in the construction line at the inspection point (space bar)">Record line</button>
-          <button id="clear-hex" style="display:none">Clear construction lines</button>
+          <button id="clear-hex" style="visibility:hidden">Clear construction lines</button>
         </div>
       </div>
-      <div class="canvas-wrap"><canvas id="canvas-hexgamma"></canvas></div>
       <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.
       Click the red curve to inspect one construction plane (radius vector + perpendicular);
       ←/→ arrow keys step the inspection point along the curve (Shift: 10°); space or “Record line”
@@ -532,7 +532,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v2.0</strong> · November 2026 · Developed with Vibe Code (Mistral AI), model
+  <p><strong>Wulffγang v2.1</strong> · November 2026 · Developed with Vibe Code (Mistral AI), model
   GLM (Z.ai), in conversation with Prof. Robin Klupp Taylor (FAU Erlangen-Nürnberg).</p>
 </footer>
 

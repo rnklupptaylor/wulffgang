@@ -56,7 +56,7 @@ function sync2d() {
   updateTable2d(app2d, 'table-2d', 'missing-note-2d');
   refreshEditButtons();
   $('record-2d').disabled = !app2d.inspect;
-  $('clear-2d').style.display = app2d.burnt.length ? '' : 'none';
+  $('clear-2d').style.visibility = app2d.burnt.length ? 'visible' : 'hidden';
 }
 
 function updateTable2d(app, tableId, noteId) {
@@ -194,7 +194,7 @@ function syncHex() {
   updateTable2d(appHex, 'table-hex', 'missing-note-hex');
   refreshEditButtons();
   $('record-hex').disabled = !appHex.inspect;
-  $('clear-hex').style.display = appHex.burnt.length ? '' : 'none';
+  $('clear-hex').style.visibility = appHex.burnt.length ? 'visible' : 'hidden';
 }
 
 for (const [id, key] of [['sh-gm', 'gm'], ['sh-gb', 'gb'], ['sh-gp', 'gp']]) {
@@ -358,6 +358,20 @@ $('quiz-reveal').addEventListener('click', () => {
 });
 
 /* ---------- boot ---------- */
+if (typeof ResizeObserver !== 'undefined') {
+  const ro = new ResizeObserver(() => {
+    app2d.draw();
+    appHex.draw();
+    appQ.draw();
+    app3d.render();
+  });
+  for (const id of ['canvas-gamma', 'canvas-shape', 'canvas-hexgamma', 'canvas-hexshape',
+                    'canvas-3d', 'canvas-quiz']) {
+    const el = $(id);
+    if (el) ro.observe(el);
+  }
+}
+
 sync2d();
 syncHex();
 sync3d();

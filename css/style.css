@@ -65,7 +65,7 @@ a { color: var(--accent); }
 .header-title .gamma::before {
   content: '';
   position: absolute;
-  top: -0.07em;
+  top: 0.34em;
   left: 50%;
   transform: translateX(-50%);
   width: 0.46em;
@@ -210,6 +210,26 @@ main {
   background: var(--bg);
   touch-action: none;
 }
+.canvas-overlay {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  display: flex;
+  gap: 0.4rem;
+  z-index: 5;
+}
+.canvas-overlay button {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.28rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.canvas-overlay button:hover { border-color: var(--accent); color: var(--accent); }
+.canvas-overlay button:disabled { opacity: 0.45; cursor: default; }
 
 .caption { font-size: 0.85rem; color: var(--muted); margin: 0.55rem 0 0; }
 .note { font-size: 0.85rem; color: var(--muted); margin: 0.3rem 0 0.6rem; }
