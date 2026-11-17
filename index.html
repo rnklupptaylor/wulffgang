@@ -34,25 +34,26 @@
 <!-- ==================== TAB 1: 2D ==================== -->
 <section id="tab-2d" class="tab-panel active">
 
-  <div class="canvas-grid">
-    <div class="card">
+  <div class="workspace">
+  <div class="ws-grid ws-3col">
+
+    <div class="card canvas-card">
       <h2>① The γ-plot and the Wulff construction</h2>
       <div class="canvas-wrap"><canvas id="canvas-gamma"></canvas></div>
-      <p class="caption"><strong>Red:</strong> surface energy γ(θ) as a function of surface orientation
-      (the γ-plot, with cusps at the facet orientations). <strong>Thin blue lines:</strong> planes drawn
-      perpendicular to the radius vector at every point of the γ-plot, at distance h = γ.
+      <p class="caption"><strong>Red:</strong> γ(θ), the γ-plot (cusps at the facet orientations).
+      <strong>Thin blue lines:</strong> planes perpendicular to the radius vector at distance h = γ.
       <strong>Blue:</strong> their inner envelope — the equilibrium shape. Drag the coloured handles to change γ.</p>
     </div>
-    <div class="card">
+
+    <div class="card canvas-card">
       <h2>② The equilibrium shape (drag the facets!)</h2>
       <div class="canvas-wrap"><canvas id="canvas-shape"></canvas></div>
-      <p class="caption">The crystal that grows slowly at equilibrium. Each facet sits at distance
-      h = λγ from the centre (Wulff theorem). <strong>Drag a facet in or out</strong> and watch the γ-plot
-      follow — this is the reverse direction: shape → surface energies.</p>
+      <p class="caption">Each facet sits at distance h = λγ from the centre (Wulff theorem).
+      <strong>Drag a facet in or out</strong> and watch the γ-plot follow — the reverse direction:
+      shape → surface energies.</p>
     </div>
-  </div>
 
-  <div class="controls-grid">
+    <div class="side-col">
     <div class="card">
       <h3>Surface energies</h3>
       <p class="note">Rounded teaching values for a crystal with four-fold symmetry. Only <em>ratios</em> matter,
@@ -111,11 +112,11 @@
         </div>
       </details>
     </div>
-  </div>
 
-  <div class="card trythis">
-    <h3>Try this</h3>
-    <ol>
+    <details class="card trythis">
+      <summary>Try this — 4 exercises</summary>
+      <div class="card-body">
+      <ol>
       <li>Set γ{11} = √2 ≈ 1.414 — the nearest-neighbour broken-bond value for a simple square lattice.
       Which facets survive, and why are the corners exactly at 45°?</li>
       <li>Lower γ{21} step by step from 1.28. At what value do {21} facets appear, and what happens to the
@@ -126,6 +127,11 @@
       the shape gains more sides. Turn on “facet colours on γ-plot” to see which cusp each facet belongs to,
       and reduce the construction-line density to trace the perpendiculars individually.</li>
     </ol>
+      </div>
+    </details>
+    </div>
+
+  </div>
   </div>
 
 </section>
@@ -133,15 +139,17 @@
 <!-- ==================== TAB 2: 3D ==================== -->
 <section id="tab-3d" class="tab-panel">
 
-  <div class="grid-3d">
-    <div class="card">
+  <div class="workspace">
+  <div class="ws-grid ws-2col">
+
+    <div class="card canvas-card">
       <h2>The Wulff polyhedron</h2>
-      <div class="canvas-wrap tall"><canvas id="canvas-3d"></canvas></div>
+      <div class="canvas-wrap"><canvas id="canvas-3d"></canvas></div>
       <p class="caption">Drag to rotate · scroll to zoom · hover over a facet for details.
       Built as the exact intersection of the half-spaces n·r ≤ γ{n} for every plane of every enabled family.</p>
     </div>
 
-    <div class="sidebar">
+    <div class="side-col">
       <div class="card">
         <h3>Surface energies (γ{111} = 1.000)</h3>
         <p class="note">Rounded teaching values. γ{111} is the reference — for fcc metals it is the
@@ -192,12 +200,11 @@
         </table>
         <p class="note" id="hint-3d"></p>
       </div>
-    </div>
-  </div>
 
-  <div class="card trythis">
-    <h3>Try this</h3>
-    <ol>
+      <details class="card trythis">
+        <summary>Try this — 4 exercises</summary>
+        <div class="card-body">
+        <ol>
       <li>Load <strong>Broken-bond fcc</strong>. With only nearest-neighbour bonds broken, γ{100}/γ{111} = 2/√3 ≈ 1.155
       and γ{110}/γ{111} = 5/√24 ≈ 1.021 — and the shape has 26 facets: eight {111}, six {100} and twelve {110}.</li>
       <li>Load <strong>Au (gold)</strong>. Relativistic effects and d-band filling make γ{110} relatively more expensive,
@@ -207,6 +214,11 @@
       <li>Enable {311} and lower its γ below the value shown in “appears if γ ≤”. High-index facets can appear —
       this is why real nanoparticles sometimes show unexpected facets.</li>
     </ol>
+        </div>
+      </details>
+    </div>
+
+  </div>
   </div>
 
 </section>
@@ -214,16 +226,20 @@
 <!-- ==================== TAB 4: QUIZ ==================== -->
 <section id="tab-quiz" class="tab-panel">
 
-  <div class="quiz-intro card">
-    <h2>Mystery crystal: shape → surface energies</h2>
+  <div class="workspace">
+
+  <details class="card intro-details">
+    <summary>Mystery crystal: shape → surface energies — what to do</summary>
+    <div class="card-body">
     <p>The app has drawn an equilibrium crystal from <em>hidden</em> surface energies (dashed target).
     Recover them: drag your facets (solid colours) until your shape matches the target, or adjust the sliders.
     The match score updates live — at 100 % you have read off the energy ratios exactly as an experimentalist
     would from a TEM image.</p>
-  </div>
+    </div>
+  </details>
 
-  <div class="canvas-grid">
-    <div class="card">
+  <div class="ws-grid ws-2col">
+    <div class="card canvas-card">
       <h2>Your crystal</h2>
       <div class="canvas-wrap"><canvas id="canvas-quiz"></canvas></div>
       <p class="caption">Solid colour: your shape (draggable). Dashed outline: the mystery target.</p>
@@ -255,35 +271,42 @@
     </div>
   </div>
 
+  </div>
+
 </section>
 
 <!-- ==================== TAB 3b: HEXAGONAL / ANISOTROPIC ==================== -->
 <section id="tab-hex" class="tab-panel">
 
-  <div class="quiz-intro card">
-    <h2>Anisotropic crystals: rods and platelets</h2>
+  <div class="workspace">
+
+  <details class="card intro-details">
+    <summary>Anisotropic crystals: rods and platelets — what this tab shows</summary>
+    <div class="card-body">
     <p>The Wulff construction is <em>not</em> restricted to cubic crystals — it works for any surface-energy
     plot γ(n). This tab shows a 2D section <em>containing the c-axis</em> of a wurtzite-type crystal
     (like ZnO, GaN or ice), where the energy difference between the nonpolar prism planes {10-10}
     and the polar basal plane {0001} directly controls the <strong>aspect ratio</strong> of the crystal:
     high γ{0001} → rod, low γ{0001} → platelet. Only ratios matter, so γ{10-10} is the reference.</p>
-  </div>
+    </div>
+  </details>
 
-  <div class="canvas-grid">
-    <div class="card">
+  <div class="ws-grid ws-3col">
+
+    <div class="card canvas-card">
       <h2>γ-plot and Wulff shape (c-axis section)</h2>
       <div class="canvas-wrap"><canvas id="canvas-hexgamma"></canvas></div>
       <p class="caption">Drag the circular handles on the γ-plot, or the facets of the shape.</p>
     </div>
-    <div class="card">
+
+    <div class="card canvas-card">
       <h2>Crystal section</h2>
       <div class="canvas-wrap"><canvas id="canvas-hexshape"></canvas></div>
       <p class="caption">Section through the c-axis (vertical). The {11-20} a-planes are
       perpendicular to this section and never appear as facets here.</p>
     </div>
-  </div>
 
-  <div class="controls-grid">
+    <div class="side-col">
     <div class="card">
       <h3>Surface energies</h3>
       <p class="note">Teaching values. In ZnO the polar Zn-terminated (0001) face has the highest
@@ -344,10 +367,10 @@
         </div>
       </details>
     </div>
-  </div>
 
-  <div class="card trythis">
-    <h3>Try this</h3>
+    <details class="card trythis">
+      <summary>Try this — 5 exercises</summary>
+      <div class="card-body">
     <p><strong>1.</strong> Load “ZnO-like nanorod”. Measure L/D from the section and compare with
     γ{0001}/γ{10-10} — an experimentalist could read the energy ratio from a TEM image this way.</p>
     <p><strong>2.</strong> Lower γ{0001} below 1: the crystal becomes a platelet. Real ice crystals do
@@ -361,6 +384,11 @@
     <a href="https://supers-app-turated.netlify.app/" target="_blank" rel="noopener">SupersAPPturated</a>.</p>
     <p><strong>5.</strong> Activate γ{10-12} under “Higher-index families” and lower it: {10-12} pyramidal
     facets bevel the rod ends — a habit frequently reported for real ZnO and GaN nanocrystals.</p>
+      </div>
+    </details>
+    </div>
+
+  </div>
   </div>
 
 </section>
@@ -470,7 +498,7 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>Wulffγang v1.3</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
+  <p><strong>Wulffγang v1.4</strong> (WS 2026-27) · Concept: Prof. Robin N. Klupp Taylor, FAU Erlangen-Nürnberg ·
   Companion app to <a href="https://supers-app-turated.netlify.app/">SupersAPPturated</a> (nucleation &amp; growth)
   and <a href="https://dropwyse.netlify.app/">δropwγse</a> (wetting).</p>
 </footer>

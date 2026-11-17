@@ -46,6 +46,14 @@ and vice versa**, in both directions:
   ratios for Au, Ag, Cu, Pt, Pd, Ni (Vitos et al. 1998; Tran et al. 2016), cube and octahedron
   limits.
 
+## Layout
+
+Tabs 1–4 use a viewport-fit "workspace" layout: canvases and all controls are arranged side by side
+and sized to the browser window, so the result and the sliders are visible simultaneously without
+scrolling (controls column scrolls internally only if a laptop screen is very short). Intro text and
+the "Try this" exercises are collapsed fold-out panels to keep everything on one screen. Below
+~1100 px width (tablets/phones) the layout falls back to a stacked, scrollable arrangement.
+
 ## Run / deploy
 
 Pure static site — no build step, no dependencies, no external requests.
