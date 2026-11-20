@@ -2,7 +2,7 @@
 
 Interactive teaching app for the unit **Nucleation & Growth → Growth → Wulff construction**
 in the bachelor lecture *Introduction to Interface Engineering* (Prof. R. N. Klupp Taylor,
-FAU Erlangen-Nürnberg). Companion app to [SupersAPPturated](https://supers-app-turated.netlify.app/)
+FAU Erlangen-Nürnberg). Companion app to [SupersAPPturated](https://supers-app-turated.ipt-apps.workers.dev/)
 (nucleation & growth) and [δropwγse](https://dropwyse.netlify.app/) (wetting).
 
 ## What it does
@@ -74,15 +74,18 @@ the "Try this" exercises are collapsed fold-out panels to keep everything on one
 
 ## Run / deploy
 
-Pure static site — no build step, no dependencies, no external requests.
+Pure static site: no dependencies, no external requests.
 
-* **Netlify drag & drop:** drag this folder onto <https://app.netlify.com/drop>.
-* **Netlify from git:** connect the repo; `netlify.toml` already sets publish = "."
+* **Live:** <https://wulffgang.ipt-apps.workers.dev> (branch `main`)
+* **Development preview:** <https://dev-wulffgang.ipt-apps.workers.dev> (branch `dev`)
+* Hosted on Cloudflare Workers (static assets). `npm run build` copies the app into
+  `build/deploy`, and `npx wrangler deploy` publishes it (see `wrangler.jsonc`).
 * **Locally:** `python3 -m http.server` in this folder, open <http://localhost:8000>.
 
 ## Development
 
 ```
+npm test                     # runs all tests below
 node test/engine.test.mjs    # 2D engine checks (square, octagon, missing facets, support function)
 node test/hex.test.mjs       # hexagonal c-axis section checks (rod/platelet aspect ratios, critical ratios)
 node test/engine3d.test.mjs  # 3D engine checks (broken-bond fcc, cube, octahedron, timing)
@@ -98,3 +101,7 @@ Structure: `js/geometry.js` (clipping helpers) · `js/wulff2d-engine.js` (2D Wul
 2. C. Herring, Phys. Rev. **82**, 87 (1951).
 3. L. Vitos, A. V. Ruban, H. L. Skriver, J. Kollár, Surf. Sci. **411**, 186 (1998).
 4. R. Tran et al., Sci. Data **3**, 160080 (2016).
+
+## Licence
+
+MIT, see [LICENSE](LICENSE).

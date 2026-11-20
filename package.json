@@ -1,1 +1,14 @@
-{"type":"module","private":true}
+{
+  "name": "wulffgang",
+  "version": "2.3.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node tools/build.cjs",
+    "test": "for t in test/*.test.mjs; do node \"$t\" || exit 1; done"
+  }
+}

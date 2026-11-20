@@ -1,0 +1,8 @@
+{
+  "name": "wulffgang",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./build/deploy" },
+  "workers_dev": true,
+  "preview_urls": true,
+  "previews": {}
+}
