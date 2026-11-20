@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node tools/build.cjs",
+    "build": "npm test && node tools/build.cjs",
     "test": "for t in test/*.test.mjs; do node \"$t\" || exit 1; done"
   }
 }
